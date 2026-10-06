@@ -16,8 +16,11 @@ type Case = { id: string; image: string; row: KitRow; expected: { findings: Find
 
 const ENV_FILE = ".env.eval.local";
 const MAX_CALLS = 8;
-/** Tarif Standard lu le 2026-10-06 sur https://developers.openai.com/api/docs/pricing (gpt-6.1-sol). */
-const PRICE_PER_MTOK = { "gpt-6.1-sol": { input: 2.0, output: 10.0 } } as Record<string, { input: number; output: number } | undefined>;
+/** Tarifs Standard lus le 2026-10-06 sur developers.openai.com (pages pricing et modèles). */
+const PRICE_PER_MTOK = {
+  "gpt-6.1-sol": { input: 2.0, output: 10.0 },
+  "gpt-6-luna": { input: 0.1, output: 0.5 },
+} as Record<string, { input: number; output: number } | undefined>;
 
 function loadKey(): string {
   if (!existsSync(ENV_FILE)) throw new Error(`${ENV_FILE} absent : créez-le vous-même (OPENAI_API_KEY=…), chmod 600.`);
@@ -31,7 +34,8 @@ function loadKey(): string {
 describe("mini-évaluation (API réelle)", () => {
   it("exécute les six cas annotés une fois, sans relance", { timeout: 6 * 60_000 }, async () => {
     const apiKey = loadKey();
-    const model = process.env.OPENAI_MODEL || "gpt-6.1-sol";
+    // Modèle évalué : EVAL_MODEL (comparaison explicite), sinon le modèle du produit.
+    const model = process.env.EVAL_MODEL || process.env.OPENAI_MODEL || "gpt-6.1-sol";
     const { cases } = JSON.parse(readFileSync("evals/cases.json", "utf8")) as { cases: Case[] };
     expect(cases.length).toBeLessThanOrEqual(MAX_CALLS);
     const analyzer = createOpenAiVisionAnalyzer();
@@ -77,7 +81,7 @@ describe("mini-évaluation (API réelle)", () => {
       calls: results.length,
       totals,
       estimatedUsd,
-      pricingSource: price ? "https://developers.openai.com/api/docs/pricing (Standard, lu le 2026-10-06)" : "tarif inconnu : usage seulement",
+      pricingSource: price ? "developers.openai.com, tarif Standard lu le 2026-10-06" : "tarif inconnu : usage seulement",
       results,
     };
     mkdirSync("evals/out", { recursive: true });

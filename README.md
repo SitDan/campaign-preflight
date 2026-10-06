@@ -122,4 +122,4 @@ Le déploiement ne contient **aucune** `OPENAI_API_KEY` partagée. Les fichiers 
 
 ### Mini-évaluation
 
-Créez vous-même `.env.eval.local`, contenant uniquement `OPENAI_API_KEY=…`, puis `chmod 600 .env.eval.local` et `pnpm eval`. Le script utilise le même adaptateur, le même prompt et le même prétraitement que l'application. Il fait un appel par cas, sans relance. Il affiche les détections, les fausses alertes, les abstentions, la latence et les jetons, et écrit le détail dans `evals/out/` (non versionné).
+Créez vous-même `.env.eval.local`, contenant uniquement `OPENAI_API_KEY=…`, puis `chmod 600 .env.eval.local` et `pnpm eval`. Pour comparer un autre modèle sur les mêmes cas : `EVAL_MODEL=gpt-6-luna pnpm eval`. Le script utilise le même adaptateur, le même prompt et le même prétraitement que l'application. Il fait un appel par cas, sans relance. Il affiche les détections, les fausses alertes, les abstentions, la latence et les jetons, et écrit le détail dans `evals/out/` (non versionné).
