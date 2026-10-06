@@ -75,7 +75,13 @@ Compte de l'utilisateur, application ChatGPT, ajout via Plugins → Add custom M
 | Capacités annoncées par l'hôte | liens externes : oui · téléchargement (`ui/download-file`) : **non** · message : oui | capture |
 | CORS strict | origine exacte autorisée ; `https://e2e.invalid` et une autre sandbox `*.web-sandbox.oaiusercontent.com` refusées | curl, 14:23 |
 
-_Parcours complet dans ChatGPT : en cours._ Le téléchargement n'est pas annoncé par l'hôte : l'export passe par le repli « CSV intégral sélectionnable ».
+| Association externe depuis ChatGPT | `POST /api/sessions` 201 depuis le composant (14:24), dépôt `/setup` (14:25), « Vérifier la connexion » → `ready` | logs + captures |
+| Analyse avec clé synthétique | run créé (14:29), mesures affichées, revue IA « Clé OpenAI refusée » | logs + capture |
+| `ui/message` (« Expliquer dans ChatGPT ») | ChatGPT a reçu le résumé nettoyé et l'a commenté dans la conversation | capture (14:42) |
+| Sélection de fichiers dans l'iframe | `kit-invalide.csv` + 3 images choisis via les boutons du composant ; import refusé (`cta` manquant, `row_id` en double) | capture (14:42) |
+| Retour utilisateur intégré | miniatures cassées (URL `blob:` probablement bloquées par la CSP de l'hôte) ⇒ passage en `data:` ; interface jugée peu ergonomique ⇒ parcours guidé (déployé à 14:34) | captures |
+
+Le téléchargement n'est pas annoncé par l'hôte : l'export passe par le repli « CSV intégral sélectionnable ». _Restent à confirmer dans ChatGPT : miniatures en `data:`, bouton d'aide CSV (déployé à 14:39, après le chargement du composant testé), parcours avec une vraie clé._
 
 ## 5. API réelle (vraie clé) et mini-évaluation
 
