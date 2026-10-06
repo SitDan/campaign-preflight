@@ -141,6 +141,19 @@ Chaque annonce a consommé environ 3 950 jetons en entrée et 218 à 311 en sort
 
 _Constats affichés à l'utilisateur lors de ce parcours : capture non fournie._
 
+### Test final dans ChatGPT (16:40), clé de démonstration, kit d'exemple
+
+- **Composant** :
+  - FR : rien à signaler ;
+  - UK : « À vérifier », offre « 30% off everything » contre « 20% off the whole collection » attendu ;
+  - DE : « À vérifier », langue (« Collection Aurore », visuel en français pour de-DE), **sans fausse alerte de date** ;
+  - ratio affiché « 4:5 » et libellé neutre « Correction à demander ».
+- **Interaction avec ChatGPT** : en fin d'analyse, les résultats nettoyés sont joints au contexte (« Context · 1 » visible) et une demande de synthèse est envoyée. ChatGPT présente alors de lui-même, sous le composant :
+  - les priorités (UK offre, DE langue) ;
+  - les points à confirmer (dates sans année) ;
+  - la proposition de rédiger le message pour l'équipe créative.
+- **Correction mineure** : la sortie de l'outil d'ouverture mentionne désormais les deux choix de clé (démonstration ou clé personnelle). ChatGPT avait paraphrasé « ta propre clé » alors que la clé de démo était utilisée.
+
 ### Clé de démonstration en production (16:17–16:19), kit d'exemple
 
 | Passage | FR | UK | DE |

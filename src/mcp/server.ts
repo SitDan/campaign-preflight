@@ -102,7 +102,7 @@ export function registerCampaignPreflight(server: McpServer, deps: McpDeps): voi
           locales: [...LIMITS.locales],
         },
         billing:
-          "Les analyses IA utilisent la clé API OpenAI de l'utilisateur, facturée séparément de l'abonnement ChatGPT. La clé se configure sur une page externe, jamais dans la conversation.",
+          "Deux choix dans le composant : une clé de démonstration offerte et plafonnée pour tester, ou la clé API OpenAI de l'utilisateur (facturée séparément de l'abonnement ChatGPT, saisie sur une page externe, jamais dans la conversation).",
         nextStep: "Suivre les étapes affichées dans le composant.",
       };
       return {
