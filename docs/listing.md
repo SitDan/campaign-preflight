@@ -8,7 +8,7 @@ Campaign Preflight
 
 ## Description courte
 
-Repérez les erreurs dans vos annonces Instagram Feed avant de transmettre votre kit à l'agence.
+Repérez les erreurs dans vos annonces Instagram Feed avant leur publication sur Meta : côté créatif avant l'envoi au media buyer, côté media buyer avant l'implémentation dans Meta.
 
 ## Description
 

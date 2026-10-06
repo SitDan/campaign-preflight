@@ -276,10 +276,13 @@ async function exportCsv() {
 
 async function explain() {
   if (!state.report) return;
-  const summary = `${toSummaryText(state.report)}\n\nRédige le message à envoyer à l'agence : la liste des corrections à demander, annonce par annonce, en distinguant ce qui est certain (mesures) de ce qui est à confirmer (alertes IA).`;
+  const request = needsCorrections(state.report)
+    ? "Rédige l'e-mail pour demander les corrections à l'équipe qui a produit les visuels : objet, courte introduction, puis les corrections annonce par annonce, en distinguant ce qui est certain (mesures, règles Meta) de ce qui est à confirmer (alertes IA). Ton professionnel, en français, sans rien inventer."
+    : "Rédige un court récapitulatif de cette vérification, à joindre au kit : ce qui a été contrôlé, le résultat, et ce qui n'a pas été vérifié. Ton professionnel, en français.";
+  const summary = `${toSummaryText(state.report)}\n\n${request}`;
   const sent = await sendChatMessage(summary);
   state.summaryText = sent ? "" : summary;
-  state.notice = sent ? "C'est parti : ChatGPT rédige l'e-mail pour votre agence juste sous ce composant (aucune clé ni donnée de connexion n'est transmise)." : "Envoi indisponible : copiez le résumé ci-dessous dans la conversation.";
+  state.notice = sent ? "C'est parti : ChatGPT rédige le texte juste sous ce composant (aucune clé ni donnée de connexion n'est transmise)." : "Envoi indisponible : copiez le résumé ci-dessous dans la conversation.";
   render();
 }
 
@@ -301,6 +304,12 @@ async function downloadTemplate() {
   state.exportText = ok ? "" : CSV_TEMPLATE;
   state.exportNote = ok ? "Modèle demandé à ChatGPT." : "Modèle CSV à copier dans un fichier .csv :";
   render();
+}
+
+/** Points à corriger, à vérifier ou vérification incomplète : l'e-mail de corrections a un sens. */
+function needsCorrections(report: Report): boolean {
+  const s = report.summary;
+  return s.technicalErrors + s.kitIssues + s.aiAlerts + s.recommendationGaps + s.aiNotCompleted > 0;
 }
 
 function newValidation() {
@@ -612,12 +621,20 @@ function reportStep(): HTMLElement {
       : h(
       "div",
       { className: "actions" },
-      button("Rédiger l'e-mail de corrections pour l'agence", explain, "primary"),
+      button(needsCorrections(report) ? "Rédiger l'e-mail de demande de corrections" : "Rédiger un récapitulatif de la vérification", explain, "primary"),
       button("Récupérer le rapport (CSV)", exportCsv, "secondary"),
       button("Vérifier un autre kit", newValidation, "link"),
       button("Terminer et supprimer mes données", finish, "link"),
     ),
-    run ? null : h("p", { className: "muted small" }, "« Rédiger l'e-mail » : ChatGPT écrit, juste sous ce composant, un message prêt à copier pour votre agence, avec les corrections à demander annonce par annonce. Rien n'est envoyé à l'agence automatiquement."),
+    run
+      ? null
+      : h(
+          "p",
+          { className: "muted small" },
+          needsCorrections(report)
+            ? "ChatGPT rédige, juste sous ce composant, l'e-mail qui demande les corrections annonce par annonce. Vous le relisez et l'envoyez vous-même : rien n'est envoyé automatiquement."
+            : "ChatGPT rédige, juste sous ce composant, un récapitulatif à joindre au kit. Rien n'est envoyé automatiquement.",
+        ),
     state.exportNote ? h("p", { className: "small" }, state.exportNote) : null,
     ...selectableText(state.exportText, "export"),
     ...selectableText(state.summaryText, "summary"),
@@ -653,7 +670,7 @@ function render(): void {
   const analysing = Boolean(state.run);
   replace(
     root,
-    h("header", {}, h("h1", {}, "Campaign Preflight"), h("p", { className: "muted" }, "Vérifiez vos annonces Instagram Feed avant de transmettre le kit à votre agence.")),
+    h("header", {}, h("h1", {}, "Campaign Preflight"), h("p", { className: "muted" }, "Vérifiez vos annonces Instagram Feed avant leur publication sur Meta.")),
     state.error ? h("div", { className: "box bad", role: "alert" }, state.error) : null,
     state.notice && !analysing
       ? h("div", { className: "box info", role: "status" }, state.busy ? h("span", { className: "spinner", "aria-hidden": "true" }) : null, state.notice)

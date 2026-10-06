@@ -1,8 +1,12 @@
 # Campaign Preflight
 
-**Repérez les erreurs dans vos annonces Instagram Feed avant de transmettre votre kit à l'agence.**
+**Repérez les erreurs dans vos annonces Instagram Feed avant leur publication sur Meta.**
 
-Campaign Preflight est un POC qui fonctionne dans ChatGPT. Une équipe marketing y dépose un petit kit d'annonces (CSV imposé + images) et obtient avant transmission à l'agence média :
+Campaign Preflight est un POC qui fonctionne dans ChatGPT. Il sert à deux moments :
+- **côté créatif**, pour vérifier le kit avant de l'envoyer au media buyer ;
+- **côté media buyer**, pour le vérifier avant de l'implémenter dans Meta.
+
+On y dépose un petit kit d'annonces (CSV imposé + images) et on obtient :
 
 - **les mesures techniques certaines** de chaque image : format, poids, dimensions, ratio. Elles sont comparées aux exigences et recommandations **Meta sourcées et datées**, séparées des limites propres au POC ;
 - **les anomalies du kit** : champ obligatoire vide, image absente, locale ou placement hors périmètre, URL non HTTPS ;
@@ -46,7 +50,7 @@ Le nom choisi est celui que l'on tape après `@`. Les exemples ci-dessous suppos
 4. De retour dans ChatGPT, cliquez sur **Vérifier la connexion**. La clé est enregistrée mais pas testée : la première analyse vérifiera l'accès au modèle.
 5. Cliquez sur **Choisir les fichiers du kit** et sélectionnez en une fois le CSV et ses images (par exemple tout le dossier), ou cliquez sur **Utiliser le kit d'exemple**. Contrôlez l'aperçu.
 6. Cliquez sur **Analyser les N annonces**. Ce clic autorise au plus N appels facturés et l'envoi d'une copie réduite de chaque image à OpenAI.
-7. Lisez le rapport, exportez le CSV ou cliquez sur **Expliquer le rapport dans ChatGPT**.
+7. Lisez les résultats. S'il y a des points à corriger, cliquez sur **Rédiger l'e-mail de demande de corrections** : ChatGPT rédige l'e-mail sous le composant, que vous relisez et envoyez vous-même. Vous pouvez aussi récupérer le rapport en CSV.
 8. Cliquez sur **Terminer et supprimer** pour retirer la clé chiffrée et les résultats. Sinon, tout expire 3 heures après la création.
 
 Si le composant est rechargé, la session est perdue : recommencez à l'étape 2. Supprimer la session ne révoque pas votre clé chez OpenAI.
