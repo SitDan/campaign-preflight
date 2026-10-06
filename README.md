@@ -1,114 +1,61 @@
 # Campaign Preflight
 
-**Vérifiez vos annonces Instagram Feed avant leur publication sur Meta**, directement dans ChatGPT.
+## Problème
 
-L'outil sert à deux moments :
-- **côté créatif**, avant l'envoi du kit au media buyer ;
-- **côté media buyer**, avant l'implémentation dans Meta.
+Les kits d'annonces (visuels et textes, en plusieurs langues) partent souvent sur Meta avec des erreurs : mauvais format, offre ou date fausse sur le visuel, mauvaise langue, champ manquant. Elles sont repérées tard, à la main, par le media buyer ou après un refus de Meta.
 
-## Ce que fait l'outil
+## Solution
 
-Vous déposez un kit : un tableau CSV et les visuels. Pour chaque annonce, l'outil indique :
-- **À corriger** : format, poids, dimensions, ratio, comparés aux règles Meta officielles (sourcées et datées), plus les champs manquants du kit ;
-- **À vérifier** : les différences repérées par l'IA entre le texte visible du visuel et vos informations (langue, offre, collection, date) ;
-- **Non vérifié** : ce que l'outil n'a pas pu contrôler.
+Un outil intégré à ChatGPT qui vérifie un kit (un CSV et ses visuels) en environ 5 secondes par annonce :
 
-Ensuite, ChatGPT peut **rédiger l'e-mail de demande de corrections**.
+- **contrôles techniques** des visuels par rapport aux règles Meta officielles, sourcées et datées ;
+- **lecture du texte des visuels par l'IA**, comparée aux informations du CSV (langue, offre, collection, date) ;
+- **résultat par annonce** (« À corriger », « À vérifier », « Rien à signaler »), puis rédaction par ChatGPT de l'e-mail de demande de corrections.
 
-L'outil ne juge pas la créativité, ne certifie pas la conformité juridique et ne garantit pas l'approbation de Meta.
+Il sert au créatif avant l'envoi au media buyer, et au media buyer avant la mise en ligne.
 
-**Périmètre du POC** : Instagram Feed, images JPEG/PNG, **10 annonces par kit**, locales fr-FR, en-GB et de-DE.
+Le périmètre du POC couvre Instagram Feed, les images, 10 annonces par kit et 3 langues (FR, EN, DE).
 
-## Installation dans ChatGPT
+L'analyse utilise la clé OpenAI de l'utilisateur et coûte moins d'un centime par annonce. La clé est chiffrée, conservée 3 h au plus et jamais saisie dans le chat.
 
-Prérequis : ChatGPT sur le web, avec un compte autorisé à ajouter un serveur MCP personnalisé, et **votre propre clé API OpenAI** (crédit API, accès à `gpt-6-luna`).
+## Installation (2 min)
 
-1. **Plugins** → **+** → **Add custom MCP server**.
-2. Nom : **`Campaign Preflight`** · URL : `https://campaign-preflight.vercel.app/mcp` · Authentification : **No authentication**.
-3. **Create as a plugin**, puis **Connect**.
+Prérequis :
+- ChatGPT web, avec un compte qui autorise les serveurs MCP personnalisés ;
+- une clé API OpenAI avec accès à `gpt-6-luna`.
 
-Le nom choisi est celui que l'on tape après `@`.
+Étapes :
+1. ChatGPT → **Plugins** → **+** → **Add custom MCP server**.
+2. Nom `Campaign Preflight`, URL `https://campaign-preflight.vercel.app/mcp`, **No authentication** → **Create** → **Connect**.
+3. Dans un chat : `@Campaign Preflight Ouvre Campaign Preflight pour vérifier mon kit Instagram Feed.`, puis suivre les 3 étapes affichées.
 
-## Utilisation
+Le bouton « Essayer avec un exemple » charge un kit fictif. Résultat attendu :
 
-1. Dans une conversation : **`@Campaign Preflight Ouvre Campaign Preflight pour vérifier mon kit Instagram Feed.`**
-2. **Connecter votre compte OpenAI** : un code s'affiche. Ouvrez la page sécurisée, saisissez le code et votre clé, puis revenez cliquer sur **C'est fait**.
-3. **Choisir mes fichiers** : sélectionnez en une fois le CSV et ses visuels. Vous pouvez aussi cliquer sur **Essayer avec un exemple**.
-4. **Lancer la vérification**, puis lisez les résultats.
-5. **Rédiger l'e-mail de demande de corrections** ou **Récupérer le rapport (CSV)**. Terminez par **Terminer et supprimer mes données**.
-
-Prompts utiles :
-- « Ouvre Campaign Preflight pour vérifier mon kit Instagram Feed. »
-- « Quelles vérifications Instagram Feed sont couvertes et quelles sont leurs limites ? »
-- Après l'envoi du résumé : « Explique les anomalies de ce rapport et les corrections à demander. »
-
-**Clé et coût** :
-- La clé se saisit sur une page sécurisée, jamais dans la conversation.
-- Elle est chiffrée et conservée **3 h au plus** (5 vérifications), puis effacée.
-- Coût mesuré : moins d'un centime par annonce, facturé sur votre compte API OpenAI, distinct de l'abonnement ChatGPT. Détails dans [docs/security.md](docs/security.md).
-
-## Kit d'exemple
-
-`fixtures/demo/` contient trois annonces fictives (marque « Maison Ardoise », collection « Aurore ») :
-
-| Annonce | Résultat attendu |
+| Annonce | Résultat |
 |---|---|
 | FR | rien à signaler |
-| UK | offre contradictoire : 30 % sur le visuel, 20 % en référence |
-| DE | erreur de langue : visuel en français |
-
-Fichiers fournis :
-- `kit.csv` et ses 3 visuels ;
-- `kit-invalide.csv` : import refusé ;
-- `kit-excel-fr.csv` : séparateur « ; », refusé avec aide à la correction ;
-- `modele.csv` : modèle vide.
-
-Colonnes du CSV :
-- obligatoires : `row_id`, `ad_name`, `locale`, `placement`, `media_filename`, `primary_text`, `cta`, `landing_url` ;
-- facultatives : `reference_collection`, `reference_offer`, `reference_date` et `reference_date_label`.
+| UK | erreur d'offre |
+| DE | erreur de langue |
 
 ## Prochaines étapes
 
-**Prévues :**
-1. **Placements supplémentaires** : Facebook Feed, puis Stories et Reels, chacun avec ses règles Meta sourcées et ses tests.
-2. **Vidéo** sur un premier placement : métadonnées (durée, format, poids), extraction de quelques images, stockage privé et envoi direct.
-3. **OAuth** (par exemple Descope MCP Auth, Marketplace Vercel) : une seule connexion par utilisateur, clé conservée dans un coffre, plus de ressaisie.
-4. **Choix du modèle d'IA** : volontairement restreint à un seul modèle (`gpt-6-luna`) dans le POC. L'utilisateur choisirait parmi des modèles qualifiés par la mini-évaluation, avec un coût et une qualité affichés. Le choix resterait explicite, sans bascule automatique.
+1. **Placements** : Facebook Feed, Stories, Reels.
+2. **Vidéo**.
+3. **OAuth** : une seule connexion, sans ressaisie de clé.
+4. **Choix du modèle d'IA**, restreint à un seul modèle dans le POC.
+5. **Création automatique des campagnes dans Meta** à partir du kit validé (MCP ou API Marketing de Meta).
 
-**Pistes à valider ensemble avant toute implémentation :**
+À valider ensemble :
+- kits de plus de 10 annonces ;
+- contrôles de texte supplémentaires ;
+- historique des vérifications ;
+- veille des spécifications Meta ;
+- évaluation sur des cas réels ;
+- second fournisseur d'IA ;
+- interface en anglais.
 
-5. Kits plus volumineux (au-delà de 10 annonces), avec traitement par lots.
-6. Contrôles de texte supplémentaires : langue du texte principal par rapport à la locale, longueur des textes, libellé du CTA.
-7. Historique des vérifications, pour comparer un kit avant et après correction.
-8. Veille des spécifications Meta : alerte quand une page source change, mise à jour versionnée des règles.
-9. Évaluation élargie sur des cas réels anonymisés : textes fins, fonds chargés, offres ambiguës.
-10. Second fournisseur d'IA, qualifié par la même évaluation.
-11. Interface en anglais pour les équipes internationales.
+## Technique
 
-## Développement
-
-Stack :
-- Next.js 16, TypeScript 6, Node 24, pnpm ;
-- SDK MCP v2, `ext-apps`, `mcp-handler` ;
-- Zod, csv-parse, sharp ;
-- OpenAI (Responses), Upstash Redis ;
-- Vitest.
-
-```bash
-pnpm install --frozen-lockfile
-pnpm check            # types + lint + tests + build
-pnpm scan:secrets     # aucun secret dans les fichiers versionnés
-pnpm eval             # mini-évaluation API réelle (clé dans .env.eval.local, chmod 600)
-```
-
-Configuration :
-- les variables sont listées dans `.env.example` ;
-- `.env*` et `.local-spec/` ne sont jamais versionnés ;
-- l'exécution de la CI (`.github/workflows/ci.yml`) est désactivée sur ce dépôt privé, et les mêmes contrôles se lancent en local.
-
-Documentation :
-- [architecture](docs/architecture.md) ;
-- [sécurité et clé OpenAI](docs/security.md) ;
-- [règles Meta sourcées](docs/rules.md) ;
-- [validation, preuves et coûts](docs/validation.md) ;
-- [fiche de présentation](docs/listing.md).
+- **Stack** : Next.js / TypeScript sur Vercel, serveur MCP avec composant MCP Apps, OpenAI (API Responses), Redis Upstash.
+- **Lancer le projet** : `pnpm install && pnpm check`.
+- **Détails** : [développement](docs/developpement.md) · [architecture](docs/architecture.md) · [sécurité](docs/security.md) · [règles Meta](docs/rules.md) · [validation et coûts](docs/validation.md).
