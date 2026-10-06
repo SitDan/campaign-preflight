@@ -1,0 +1,203 @@
+{
+  "id": "instagram_feed.image",
+  "version": "1.0.0",
+  "placement": "instagram_feed",
+  "mediaType": "image",
+  "coverageNotes": [
+    "Sources lues le 2026-10-06 : Meta Ads Guide (Instagram Feed, image) et documentation développeur Meta (Media Requirements).",
+    "Ratio recommandé non contrôlé : sources Meta divergentes (4:5 dans l'Ads Guide, 1:1 dans la documentation développeur et le Help Center).",
+    "Largeur minimale divergente : 500 px (Ads Guide) et 600 px (documentation API Ads) ; les deux sont affichées.",
+    "Le format JPG/PNG est une recommandation Meta ; la restriction JPEG/PNG statique est une limite de ce POC.",
+    "Non contrôlés : titre (aucun champ dans ce kit), hashtags, conformité aux politiques publicitaires, rendu réel dans Instagram."
+  ],
+  "rules": [
+    {
+      "id": "meta.req.aspect_ratio",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "aspect_ratio",
+      "operator": "between",
+      "value": [
+        0.8,
+        1.91
+      ],
+      "unit": "ratio",
+      "nature": "meta_requirement",
+      "label": "Ratio largeur/hauteur accepté (4:5 à 1,91:1)",
+      "action": "Demander un visuel dont le ratio est compris entre 4:5 et 1,91:1.",
+      "source": {
+        "url": "https://www.facebook.com/business/ads-guide/update/image/instagram-feed",
+        "section": "Technical Requirements",
+        "verifiedAt": "2026-10-06",
+        "quote": "Minimum Aspect Ratio: 400 x 500 · Maximum Aspect Ratio: 191 x 100 · Aspect Ratio Tolerance: 1%"
+      },
+      "tolerance": 0.01
+    },
+    {
+      "id": "meta.req.min_width",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "width",
+      "operator": "gte",
+      "value": 500,
+      "unit": "px",
+      "nature": "meta_requirement",
+      "label": "Largeur minimale (Ads Guide)",
+      "action": "Demander une version d'au moins 500 px de large.",
+      "source": {
+        "url": "https://www.facebook.com/business/ads-guide/update/image/instagram-feed",
+        "section": "Technical Requirements",
+        "verifiedAt": "2026-10-06",
+        "quote": "Minimum Width: 500 pixels"
+      }
+    },
+    {
+      "id": "meta.req.api_min_width",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "width",
+      "operator": "gte",
+      "value": 600,
+      "unit": "px",
+      "nature": "meta_requirement",
+      "label": "Largeur minimale à la création via l'API Ads (doc développeur)",
+      "action": "Demander une version d'au moins 600 px de large (sources Meta divergentes : 500 px dans l'Ads Guide).",
+      "source": {
+        "url": "https://developers.facebook.com/documentation/ads-commerce/instagram/ads-api/reference/media-requirements",
+        "section": "Instagram Stream And Explore Ads › Size",
+        "verifiedAt": "2026-10-06",
+        "quote": "We require all images and videos to have at least a 600px width, independent of the ad's placement."
+      }
+    },
+    {
+      "id": "meta.req.max_file_size",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "file_bytes",
+      "operator": "lte",
+      "value": 30000000,
+      "unit": "bytes",
+      "nature": "meta_requirement",
+      "label": "Poids maximal (30 MB, lu comme 30 × 10⁶ octets)",
+      "action": "Demander une version plus légère.",
+      "source": {
+        "url": "https://www.facebook.com/business/ads-guide/update/image/instagram-feed",
+        "section": "Technical Requirements",
+        "verifiedAt": "2026-10-06",
+        "quote": "Maximum File Size: 30MB"
+      }
+    },
+    {
+      "id": "meta.rec.file_type",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "format",
+      "operator": "in",
+      "value": [
+        "jpeg",
+        "png"
+      ],
+      "unit": "format",
+      "nature": "meta_recommendation",
+      "label": "Type de fichier recommandé",
+      "action": "Recommandation seulement : préférer JPG ou PNG.",
+      "source": {
+        "url": "https://www.facebook.com/business/ads-guide/update/image/instagram-feed",
+        "section": "Design Recommendations",
+        "verifiedAt": "2026-10-06",
+        "quote": "Image File Type: JPG or PNG"
+      }
+    },
+    {
+      "id": "meta.rec.resolution",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "width",
+      "operator": "gte",
+      "value": 1440,
+      "unit": "px",
+      "nature": "meta_recommendation",
+      "label": "Résolution recommandée (1440 × 1800 px en 4:5), lue ici comme largeur ≥ 1440 px",
+      "action": "Recommandation seulement : demander la plus haute résolution disponible.",
+      "source": {
+        "url": "https://www.facebook.com/business/ads-guide/update/image/instagram-feed",
+        "section": "Design Recommendations",
+        "verifiedAt": "2026-10-06",
+        "quote": "Resolution: 1440 x 1800 pixels"
+      }
+    },
+    {
+      "id": "meta.rec.primary_text",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "primary_text_chars",
+      "operator": "lte",
+      "value": 125,
+      "unit": "chars",
+      "nature": "meta_recommendation",
+      "label": "Longueur recommandée du texte principal",
+      "action": "Recommandation seulement : au-delà de 125 caractères le texte peut être tronqué ; raccourcir si le message clé est en fin de texte.",
+      "source": {
+        "url": "https://www.facebook.com/business/ads-guide/update/image/instagram-feed",
+        "section": "Text Recommendations",
+        "verifiedAt": "2026-10-06",
+        "quote": "Primary Text: 125 characters"
+      }
+    },
+    {
+      "id": "poc.format",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "format",
+      "operator": "in",
+      "value": [
+        "jpeg",
+        "png"
+      ],
+      "unit": "format",
+      "nature": "poc_limit",
+      "label": "Format pris en charge par ce POC",
+      "action": "Fournir un JPEG ou PNG statique.",
+      "source": null
+    },
+    {
+      "id": "poc.file_bytes",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "file_bytes",
+      "operator": "lte",
+      "value": 2097152,
+      "unit": "bytes",
+      "nature": "poc_limit",
+      "label": "Poids maximal accepté par ce POC",
+      "action": "Hors périmètre du POC : vérifier ce fichier par un autre moyen.",
+      "source": null
+    },
+    {
+      "id": "poc.pixels",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "pixels",
+      "operator": "lte",
+      "value": 12000000,
+      "unit": "pixels",
+      "nature": "poc_limit",
+      "label": "Nombre de pixels maximal accepté par ce POC",
+      "action": "Hors périmètre du POC : vérifier ce fichier par un autre moyen.",
+      "source": null
+    },
+    {
+      "id": "poc.long_side",
+      "placement": "instagram_feed",
+      "mediaType": "image",
+      "metric": "long_side",
+      "operator": "lte",
+      "value": 6000,
+      "unit": "px",
+      "nature": "poc_limit",
+      "label": "Grand côté maximal accepté par ce POC",
+      "action": "Hors périmètre du POC : vérifier ce fichier par un autre moyen.",
+      "source": null
+    }
+  ]
+}
