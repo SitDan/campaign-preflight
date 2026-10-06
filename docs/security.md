@@ -65,7 +65,9 @@ Nous ne promettons ni un chiffrement de bout en bout, ni une clé « jamais en c
 
 ## Anti-abus
 
-- 5 créations de session par heure et par IP fiable ; 20 soumissions `/setup` par heure et par IP. L'IP n'est jamais stockée en clair.
+- Créations de session par heure et par IP fiable : 5 par défaut, **30 en production** (`ABUSE_SESSION_CREATIONS_PER_HOUR_PER_IP`), pour que plusieurs testeurs derrière une même IP de bureau ne se bloquent pas.
+- 20 soumissions `/setup` par heure et par IP.
+- L'IP n'est jamais stockée en clair.
 - Plafonds globaux : 100 sessions et 200 tentatives IA par jour UTC. Interrupteur `DEMO_ENABLED`.
 - **IP fiable** : seul `x-real-ip` posé par la plateforme Vercel est retenu. Hors Vercel, aucun header n'est cru et seuls les plafonds globaux s'appliquent.
 - Derrière une IP partagée (entreprise, NAT), des utilisateurs peuvent se bloquer mutuellement.

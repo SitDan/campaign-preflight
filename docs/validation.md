@@ -174,6 +174,7 @@ Le modèle n'est pas déterministe : un seul passage par version ne prouve pas l
 | 16:05 | Consigne d'origine relue (test « comme un client », sans aide) ; dépôt rendu **public** ; README dans l'ordre de la consigne (client, pourquoi, choix, journée de plus) ; fiche avec « ce que l'app ne fait pas » | Mention du nom de test neutralisée avant publication ; CI gardée désactivée |
 | 16:10 | **Clé de démonstration** fournie par l'utilisateur (secret Vercel), en choix explicite et plafonné | Mode `demo` : session prête sans association, 2 validations et 20 appels par session, 100 analyses par jour ; écart assumé à la règle initiale « pas de clé de l'auteur » |
 | 16:30 | Plus d'interaction avec ChatGPT, sans risque avant l'envoi | Résultats nettoyés partagés avec le modèle en fin d'analyse (`ui/update-model-context`), prompts 2 et 3 conversationnels ; outil `prepare_kit` reporté à « une journée de plus » |
+| 16:38 | Blocage en test : « Trop de demandes depuis cette connexion » (5 sessions/h/IP atteint par les essais de l'utilisateur et les vérifications de bout en bout depuis le même réseau) | Plafond porté à **30 sessions/h/IP** en production (variable opérateur) ; coût toujours borné par la démo (100 analyses/jour, 2 validations/session) |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel
