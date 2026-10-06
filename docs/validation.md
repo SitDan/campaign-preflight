@@ -175,6 +175,11 @@ Départ du compteur : 13:28:37 CEST. Les durées incluent les attentes d'accès,
 | Preuves ChatGPT (ajout, rendu, origine, CORS, association, fichiers, `ui/message`) | 14:17 | 14:42 | Captures de l'utilisateur |
 | Retours utilisateur : parcours guidé, sélecteur unique, diagnostics CSV, sessions de 3 h | 14:28 | 15:00 | 4 itérations déployées |
 | Dépôt privé, CI (bloquée puis désactivée), mini-évaluation sol/luna, bascule vers luna | 15:01 | 15:15 | Évaluation : 12 appels, ≈ 0,05 $ au total |
+| Cache ChatGPT (URI versionnée puis coquillage stable v3), parcours réel avec clé utilisateur | 15:16 | 15:29 | Un « Actualiser les outils » unique ; 3 analyses réelles avec `gpt-6-luna` |
+| Retours UX (chargement par annonce, langage grand public, CTA e-mail de corrections), kits de 10, README simplifié | 15:30 | 15:50 | Déployés sans rafraîchir le plugin |
+| Vérifications finales, arrêt du banc local, **gel du périmètre** | 15:50 | 15:53 | `pnpm check` et scan verts, dépôt synchronisé |
+
+**Temps réel de développement : environ 2 h 25** (13:28 → 15:53), attentes d'accès et itérations incluses. Le test final complet de l'utilisateur, après réinstallation du plugin, reste à faire avant l'envoi.
 
 ## 8. Coûts observés
 
