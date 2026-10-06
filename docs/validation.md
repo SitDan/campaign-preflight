@@ -87,7 +87,16 @@ Le téléchargement n'est pas annoncé par l'hôte : l'export passe par le repli
 
 _À compléter :_ six cas (`evals/cases.json`, attendus rédigés avant exécution), détections, fausses alertes, abstentions, latence, jetons, coût estimé (tarif Standard `gpt-6.1-sol` lu le 2026-10-06 : 2,00 $/1M en entrée, 10,00 $/1M en sortie).
 
-## 6. Temps réel
+## 6. Décisions en cours de réalisation
+
+| Heure | Décision (utilisateur) | Effet |
+|---|---|---|
+| 14:28 | L'interface est jugée peu ergonomique dans ChatGPT | Parcours guidé en 3 étapes, rapport « À corriger / À confirmer / Non vérifié » |
+| 14:37 | Pas d'IA pour lire ou réparer le CSV | Diagnostics déterministes + bouton « Demander de l'aide à ChatGPT » (diagnostic seul, sans données) |
+| 14:45 | On garde OpenAI, avec un seul modèle | Multi-fournisseur et OAuth notés pour la journée suivante |
+| 14:53 | Sessions allongées : **3 h, 10 validations, 30 appels IA** (brief : 60 min, 3, 9) | Écart assumé au brief §3, justifié dans `docs/security.md` |
+
+## 7. Temps réel
 
 | Jalon | Début | Fin | Notes |
 |---|---|---|---|

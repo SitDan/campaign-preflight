@@ -19,7 +19,7 @@ Le produit ne juge pas le style, ne certifie pas la conformité juridique et ne 
 | Médias | images JPEG / PNG statiques (2 Mio, 12 Mpx, grand côté 6 000 px au maximum) |
 | Kit | 3 annonces et 3 images au maximum, CSV ≤ 64 Kio |
 | Locales | fr-FR, en-GB, de-DE |
-| Session | 60 minutes au plus, 3 validations, 9 appels IA |
+| Session | 3 heures au plus, 10 validations, 30 appels IA (une saisie de clé par session) |
 
 Hors périmètre : vidéo, carrousels, autres placements, compte ou API Meta, publication, réécriture, traduction, historique.
 
@@ -45,7 +45,7 @@ Hors périmètre : vidéo, carrousels, autres placements, compte ou API Meta, pu
 5. Choisissez votre CSV et vos images, ou cliquez sur **Charger le kit fictif**. Contrôlez l'aperçu.
 6. Cliquez sur **Analyser les N annonces**. Ce clic autorise au plus N appels facturés et l'envoi d'une copie réduite de chaque image à OpenAI.
 7. Lisez le rapport, exportez le CSV ou cliquez sur **Expliquer le rapport dans ChatGPT**.
-8. Cliquez sur **Terminer et supprimer** pour retirer la clé chiffrée et les résultats. Sinon, tout expire 60 minutes après la création.
+8. Cliquez sur **Terminer et supprimer** pour retirer la clé chiffrée et les résultats. Sinon, tout expire 3 heures après la création.
 
 Si le composant est rechargé, la session est perdue : recommencez à l'étape 2. Supprimer la session ne révoque pas votre clé chez OpenAI.
 

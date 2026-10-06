@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { SESSION_DURATION_LABEL } from "@/config/limits";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,7 @@ const HTML = `<!doctype html>
 <body>
 <h1>Campaign Preflight — associer votre clé OpenAI</h1>
 <p>Saisissez le <strong>code affiché dans VOTRE composant</strong> Campaign Preflight dans ChatGPT, puis votre clé API OpenAI.</p>
-<p>Cette session temporaire (60 minutes maximum) pourra utiliser la clé pour ses analyses. Chaque analyse est facturée sur votre compte API OpenAI, séparément de votre abonnement ChatGPT.</p>
+<p>Cette session temporaire (${SESSION_DURATION_LABEL} maximum) pourra utiliser la clé pour ses analyses. Chaque analyse est facturée sur votre compte API OpenAI, séparément de votre abonnement ChatGPT.</p>
 <div class="warn">N'utilisez jamais un code reçu d'un tiers. Ne collez jamais ce code ni votre clé dans la conversation ChatGPT.</div>
 <form id="f" method="post" autocomplete="off" novalidate>
 <label for="code">Code d'association</label>

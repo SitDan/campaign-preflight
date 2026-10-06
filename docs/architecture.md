@@ -41,7 +41,7 @@ Seules deux frontières sont injectées : `SessionStore` et `VisionAnalyzer`. Le
 1. Le composant crée la session : `POST /api/sessions` renvoie le bearer (32 octets) et le code d'association (10 octets, base32 sur 16 caractères). Ils ne sont transmis qu'une seule fois. Redis n'en conserve que les empreintes SHA-256.
 2. L'utilisateur ouvre `/setup`, une URL fixe sans paramètre, et saisit le code et sa clé. `POST /api/setup` exige un JSON same-origin d'au plus 8 Kio. La clé est chiffrée, puis le code est consumé et l'enveloppe écrite **dans le même script Lua**.
 3. « Vérifier la connexion » interroge `GET /api/session` avec le bearer et renvoie `ready`.
-4. Le document de session est un HASH Redis `{v, doc}`. Toute écriture est un compare-and-set qui réapplique `PEXPIREAT` sur l'échéance absolue (création + 60 min). Une session supprimée n'est jamais recréée.
+4. Le document de session est un HASH Redis `{v, doc}`. Toute écriture est un compare-and-set qui réapplique `PEXPIREAT` sur l'échéance absolue (création + 3 h). Une session supprimée n'est jamais recréée.
 
 ## Analyse d'une validation
 

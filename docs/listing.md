@@ -35,9 +35,9 @@ Le produit ne juge pas le style, ne certifie pas la conformité juridique et ne 
 ## Permissions et données
 
 - Aucune connexion à un compte Meta, aucune publication, aucune réécriture des créations.
-- La clé est saisie sur une page externe du service, chiffrée et conservée 60 minutes au plus.
+- La clé est saisie sur une page externe du service, chiffrée et conservée 3 heures au plus.
 - Les images sont traitées en mémoire. Une copie réduite et les références de sa ligne sont envoyées à OpenAI avec la clé de l'utilisateur.
-- Seuls des résultats textuels sont conservés, au plus 60 minutes, avec suppression à la demande.
+- Seuls des résultats textuels sont conservés, au plus 3 heures, avec suppression à la demande.
 
 ## Limites
 

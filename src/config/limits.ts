@@ -27,13 +27,15 @@ export const LIMITS = {
   shortFieldMaxChars: 250,
   urlMaxChars: 2_048,
 
-  runsPerSession: 3,
+  /** Décision utilisateur du 2026-10-06 (14:53) : 10 validations / 30 tentatives (brief : 3 / 9). */
+  runsPerSession: 10,
   aiAttemptsPerRun: 3,
-  aiAttemptsPerSession: 9,
+  aiAttemptsPerSession: 30,
   modelMaxOutputTokens: 2_048,
   heavyOperationsPerSession: 1,
 
-  sessionTtlMs: 60 * 60 * 1000,
+  /** Décision utilisateur du 2026-10-06 (14:53) : 3 h absolues (brief : 60 min) pour limiter les ressaisies. */
+  sessionTtlMs: 3 * 60 * 60 * 1000,
   associationCodeTtlMs: 10 * 60 * 1000,
   reportMaxBytes: 256 * KIB,
 
@@ -59,3 +61,12 @@ export const ABUSE_DEFAULTS = {
 } as const;
 
 export type SupportedLocale = (typeof LIMITS.locales)[number];
+
+/** Durée lisible (« 3 heures », « 60 minutes ») pour les textes d'interface. */
+export function formatDuration(ms: number): string {
+  const minutes = Math.round(ms / 60_000);
+  if (minutes % 60 === 0 && minutes >= 120) return `${minutes / 60} heures`;
+  return `${minutes} minutes`;
+}
+
+export const SESSION_DURATION_LABEL = formatDuration(LIMITS.sessionTtlMs);

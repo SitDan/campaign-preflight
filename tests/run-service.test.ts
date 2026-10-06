@@ -1,6 +1,7 @@
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { inspectImage } from "@/adapters/image";
+import { LIMITS } from "@/config/limits";
 import type { VisionAnalyzer, VisionInput, VisionOutcome } from "@/adapters/openai-vision";
 import { PROMPT_VERSION } from "@/domain/prompt";
 import { buildReport, toExportCsv } from "@/domain/report";
@@ -168,11 +169,10 @@ describe("validation et analyse", () => {
     await expect(analyzeRow(deps, other.bearer, { runId: run.runId, rowId: "A1", filename: "a1.jpg", bytes, startedAt: deps.now() }).catch(errorCode)).resolves.toBe("run_not_found");
   });
 
-  it("plafonds : 3 validations par session, 9 tentatives IA, plafond global concurrent", async () => {
+  it("plafonds : validations par session, tentatives IA, plafond global concurrent", async () => {
     const fake = fakeAnalyzer();
     const { deps, bearer } = await setup(fake.analyzer);
-    await createRun(deps, bearer, { csv: CSV, files: FILES });
-    await createRun(deps, bearer, { csv: CSV, files: FILES });
+    for (let i = 1; i < LIMITS.runsPerSession; i++) await createRun(deps, bearer, { csv: CSV, files: FILES });
     await expect(createRun(deps, bearer, { csv: CSV, files: FILES }).catch(errorCode)).resolves.toBe("run_limit_reached");
 
     const limited = fakeAnalyzer();

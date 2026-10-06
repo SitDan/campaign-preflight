@@ -2,6 +2,24 @@
 
 Ce POC est une démonstration contrôlée sur **données fictives**. Il ne s'agit pas d'une architecture de production multi-utilisateur. L'isolation repose sur la possession d'un secret aléatoire, pas sur une identité vérifiée, un compte utilisateur ou un OAuth.
 
+## Pourquoi ce choix : clé de l'utilisateur en session éphémère
+
+| | Clé fournie par le service | **Clé de l'utilisateur, session éphémère (retenu)** | OAuth + clé stockée durablement |
+|---|---|---|---|
+| Qui paie | l'opérateur, pour tous les utilisateurs | chaque utilisateur, sur son compte API | chaque utilisateur |
+| Risque si l'URL circule | dépense et abus sur la clé de l'opérateur | nul pour l'opérateur ; chacun ne dépense que sa clé | faible |
+| Secret détenu par le service | une clé maître très exposée | une clé chiffrée, 3 h au plus, supprimable | des clés durables : coffre, rotation, suppression de compte |
+| Comptes / identité | indispensables (quotas, facturation) | aucun : la possession du code puis du bearer suffit | fournisseur d'identité, comptes, révocation |
+| Effort | environ 1 à 1,5 jour (OAuth, quotas, facturation) | réalisé dans le POC | environ 2 jours + revue de sécurité |
+| Friction | aucune clé à saisir | une saisie de clé par session (3 h, 10 validations) | une seule connexion |
+
+Ce compromis convient à une **démonstration limitée dans le temps, sur données fictives** :
+- aucun coût ni secret longue durée ne pèse sur l'opérateur ;
+- l'utilisateur garde le contrôle de sa dépense et peut révoquer sa clé chez OpenAI ;
+- l'exposition est bornée dans le temps.
+
+Prix payé : une ressaisie par session. Le brief prévoyait 60 minutes et 3 validations. Le 2026-10-06, l'utilisateur a choisi **3 heures et 10 validations** pour réduire cette friction, ce qui allonge d'autant la durée de détention de la clé chiffrée. Pour un pilote réel, la suite logique est OAuth avec un coffre de secrets, ou le financement des appels par le service avec des quotas par utilisateur. Ce choix relève du financement et de l'authentification, pas seulement de la technique.
+
 ## Clé OpenAI de l'utilisateur (BYOK)
 
 - **Saisie** : uniquement sur `/setup`, notre page externe. La clé ne passe jamais par le chat, le composant, MCP, une URL ou un log.
@@ -29,7 +47,7 @@ Nous ne promettons ni un chiffrement de bout en bout, ni une clé « jamais en c
 - Le bearer (32 octets) est transmis une seule fois, en `no-store`. Il vit en mémoire dans une fermeture du client HTTP du composant. Il n'apparaît pas dans l'état de l'hôte, le contexte du modèle, une URL ou un stockage navigateur.
 - Les routes privées n'acceptent qu'`Authorization: Bearer`. L'appartenance session → run → ligne est contrôlée à chaque accès. Les tests A/B couvrent le cas où les identifiants de l'autre session sont connus.
 - CORS n'accepte que les origines exactes listées dans `WIDGET_ALLOWED_ORIGIN`, jamais `*`, `null` ni une origine reflétée. CORS n'est pas une autorisation.
-- L'échéance absolue est de 60 minutes après la création, sans prolongation. `DELETE /api/session` retire la clé chiffrée, les résultats et l'index de code. Une écriture tardive ne recrée rien : le compare-and-set échoue sur une clé absente.
+- L'échéance absolue est de 3 heures après la création, sans prolongation (le brief prévoyait 60 minutes ; voir « Pourquoi ce choix »). `DELETE /api/session` retire la clé chiffrée, les résultats et l'index de code. Une écriture tardive ne recrée rien : le compare-and-set échoue sur une clé absente.
 
 ## Anti-abus
 
@@ -54,7 +72,7 @@ Les logs suivent une liste autorisée : événement, code, statut, durée, origi
 | Sous-traitant | Données | Rétention |
 |---|---|---|
 | Vercel | requêtes, traitement en mémoire des images, logs filtrés | selon Vercel (logs d'exécution) |
-| Upstash (Redis, via Vercel Marketplace) | document de session : clé chiffrée, manifest, résultats, compteurs | TTL d'au plus 60 min. **Sauvegardes du fournisseur non maîtrisées** : TTL et DELETE ne prouvent pas leur effacement immédiat. |
+| Upstash (Redis, via Vercel Marketplace) | document de session : clé chiffrée, manifest, résultats, compteurs | TTL d'au plus 3 h. **Sauvegardes du fournisseur non maîtrisées** : TTL et DELETE ne prouvent pas leur effacement immédiat. |
 | OpenAI | copie d'analyse, champs utiles de la ligne | selon la politique API d'OpenAI. Une suppression chez nous ne révoque pas la clé chez OpenAI. |
 
 Supprimer notre copie ne vaut pas révocation : l'utilisateur doit révoquer sa clé dans son compte OpenAI s'il le souhaite. Un appel en cours peut se terminer et être facturé.

@@ -13,7 +13,7 @@ const ERRORS = {
   forbidden_origin: [403, "Origine non autorisée."],
   unsupported_media_type: [415, "Type de contenu non pris en charge."],
   import_rejected: [422, "Import refusé : corrigez le kit puis réessayez."],
-  run_limit_reached: [429, "Nombre maximal de validations atteint pour cette session (3)."],
+  run_limit_reached: [429, "Nombre maximal de validations atteint pour cette session : terminez-la et créez-en une nouvelle."],
   run_not_found: [404, "Validation introuvable pour cette session."],
   row_not_found: [404, "Annonce introuvable dans cette validation."],
   row_not_eligible: [409, "Cette annonce présente des anomalies bloquantes : aucune analyse."],

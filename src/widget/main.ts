@@ -1,4 +1,4 @@
-import { LIMITS } from "@/config/limits";
+import { LIMITS, SESSION_DURATION_LABEL } from "@/config/limits";
 import { CSV_TEMPLATE, parseKit, type ImportResult } from "@/domain/kit";
 import { AI_ERROR_MESSAGES, toSummaryText, type Report, type ReportRow } from "@/domain/report";
 import type { CheckResult } from "@/domain/rules";
@@ -353,8 +353,8 @@ function keyStep(): HTMLElement {
     ]);
   }
   return step(1, "Votre clé OpenAI", "current", null, [
-    h("p", {}, "Les analyses utilisent votre propre clé API OpenAI. Elles sont facturées sur votre compte API, séparément de votre abonnement ChatGPT : 1 appel par annonce, 3 au maximum par validation."),
-    h("p", { className: "muted small" }, "La clé se saisit sur une page externe sécurisée, jamais dans la conversation. Elle est chiffrée et supprimée au bout de 60 minutes au plus."),
+    h("p", {}, `Les analyses utilisent votre propre clé API OpenAI. Elles sont facturées sur votre compte API, séparément de votre abonnement ChatGPT : 1 appel par annonce, ${LIMITS.aiAttemptsPerRun} au maximum par validation.`),
+    h("p", { className: "muted small" }, `La clé se saisit sur une page externe sécurisée, jamais dans la conversation. Elle est chiffrée et supprimée au bout de ${SESSION_DURATION_LABEL} au plus ; dans ce composant, une seule saisie suffit pour ${LIMITS.runsPerSession} validations.`),
     h("div", { className: "actions" }, button("Configurer ma clé", configure, "primary")),
   ]);
 }
