@@ -139,7 +139,21 @@ D'après les logs serveur, la séquence est la suivante :
 
 Chaque annonce a consommé environ 3 950 jetons en entrée et 218 à 311 en sortie (0 à 142 de raisonnement), pour 4,3 à 5,1 s côté serveur, sharp compris. Le coût estimé est d'environ 0,0016 $ pour les 3 annonces.
 
-_Constats affichés (FR rien, UK offre, DE langue) : à confirmer par la capture du rapport._
+_Constats affichés à l'utilisateur lors de ce parcours : capture non fournie._
+
+### Clé de démonstration en production (16:17–16:19), kit d'exemple
+
+| Passage | FR | UK | DE |
+|---|---|---|---|
+| Prompt `2026-10-06.1` | rien ✓ | `offer_mismatch` « 30% off everything » ✓ | `language_mismatch` ✓ + **fausse alerte** `date_mismatch` sur « Jusqu'au 30 novembre » (même date, écrite en français) |
+| Prompt `2026-10-06.2` (règle de date précisée : seule une **valeur** différente compte ; une date identique dans une autre langue n'est pas un écart de date) | rien ✓ | `offer_mismatch` ✓ | `language_mismatch` seul ✓ |
+
+Sur le prompt `2026-10-06.2` :
+- la mini-évaluation a été relancée sur `gpt-6-luna` : **6 cas sur 6**, 0 erreur ratée, 0 fausse alerte, abstention correcte, injection ignorée, ≈ 0,0024 $ ;
+- la session de démonstration était prête sans code, à 0/2 validations et 0/20 appels ;
+- les 3 analyses ont pris de 4,2 à 5,9 s, pour environ 4 000 jetons en entrée chacune.
+
+Le modèle n'est pas déterministe : un seul passage par version ne prouve pas l'absence de fausses alertes.
 
 ## 6. Décisions en cours de réalisation
 
