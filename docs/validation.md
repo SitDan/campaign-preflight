@@ -120,7 +120,7 @@ Lecture :
 - Ce n'est pas un taux de réussite général : six exemples fictifs, aux textes nets et lisibles, sans textes fins ni cas ambigus.
 - Le coût par annonce est d'environ 0,008 $ avec `sol` et 0,0004 $ avec `luna`, image incluse : environ 2 790 jetons en entrée par appel.
 
-**Décision (15:10, conditionnée par l'utilisateur à 15:05 : « si luna fait aussi bien, on bascule »)** : le produit passe de `gpt-6.1-sol` (candidat initial du brief) à **`gpt-6-luna`**.
+**Décision (15:10, conditionnée par l'utilisateur à 15:05 : « si luna fait aussi bien, on bascule »)** : le produit passe de `gpt-6.1-sol` (candidat initial) à **`gpt-6-luna`**.
 - La doc officielle confirme que ce modèle accepte les images, l'API Responses, les sorties structurées et `reasoning.effort: low`.
 - Les paramètres d'appel sont inchangés.
 - Le produit garde un seul modèle, sans bascule automatique.
@@ -162,7 +162,7 @@ Le modèle n'est pas déterministe : un seul passage par version ne prouve pas l
 | 14:28 | L'interface est jugée peu ergonomique dans ChatGPT | Parcours guidé en 3 étapes, rapport « À corriger / À confirmer / Non vérifié » |
 | 14:37 | Pas d'IA pour lire ou réparer le CSV | Diagnostics déterministes + bouton « Demander de l'aide à ChatGPT » (diagnostic seul, sans données) |
 | 14:45 | On garde OpenAI, avec un seul modèle | Multi-fournisseur et OAuth notés pour la journée suivante |
-| 14:53 | Sessions allongées : **3 h, 10 validations, 30 appels IA** (brief : 60 min, 3, 9) | Écart assumé au brief §3, justifié dans `docs/security.md` |
+| 14:53 | Sessions allongées : **3 h, 10 validations, 30 appels IA** (initialement : 60 min, 3, 9) | Écart assumé aux plafonds initiaux, justifié dans `docs/security.md` |
 | 14:59 | Un seul envoi pour le CSV et les images | Sélecteur unique : répartition automatique CSV/images, fichiers d'autres formats ignorés et signalés |
 | 15:05 | Choisir un modèle moins coûteux s'il fait aussi bien | Évaluation sur les deux modèles, puis bascule vers `gpt-6-luna` (15:10) |
 | 15:05 | Dépôt GitHub **privé** | `SitDan/campaign-preflight` créé et poussé. La CI ne démarrait pas : la facturation du compte GitHub est verrouillée (« recent account payments have failed ») |
@@ -170,9 +170,9 @@ Le modèle n'est pas déterministe : un seul passage par version ne prouve pas l
 | 15:20 | Plugin renommé « Campaign Preflight » ; pas de rafraîchissement manuel du plugin à chaque mise à jour pour 100 utilisateurs | README : nom à saisir ; composant en coquillage stable (`widget-v3`) qui charge le code depuis notre domaine (CSP `resourceDomains` = notre seule origine) ; un seul rafraîchissement requis pour passer au coquillage |
 | 15:30 | Chargement visible par annonce ; interface compréhensible par des non-techniciens | Progression « annonce X sur N », carte animée, libellés grand public ; déployé à 15:33, visible sans rafraîchir le plugin grâce au coquillage v3 |
 | 15:42 | Double usage : le créatif vérifie avant l'envoi au media buyer, le media buyer avant l'implémentation dans Meta ; CTA « rédige-moi l'e-mail pour demander les corrections » | CTA adaptatif (e-mail de corrections, sinon récapitulatif), destinataire neutre, sous-titre « avant leur publication sur Meta » (déployé à 15:43) |
-| 15:47 | Kits de 10 annonces pour le POC | 10 annonces / 10 visuels par kit, 10 appels IA par validation, **5 validations** par session (50 annonces par saisie de clé ; document Redis gardé sous ~1 Mo). Écart assumé au brief §3 |
+| 15:47 | Kits de 10 annonces pour le POC | 10 annonces / 10 visuels par kit, 10 appels IA par validation, **5 validations** par session (50 annonces par saisie de clé ; document Redis gardé sous ~1 Mo). Écart assumé aux plafonds initiaux |
 | 16:05 | Consigne d'origine relue (test « comme un client », sans aide) ; dépôt rendu **public** ; README dans l'ordre de la consigne (client, pourquoi, choix, journée de plus) ; fiche avec « ce que l'app ne fait pas » | Mention du nom de test neutralisée avant publication ; CI gardée désactivée |
-| 16:10 | **Clé de démonstration** fournie par l'utilisateur (secret Vercel), en choix explicite et plafonné | Mode `demo` : session prête sans association, 2 validations et 20 appels par session, 100 analyses par jour ; écart assumé au cadrage initial (« pas de clé de l'auteur ») |
+| 16:10 | **Clé de démonstration** fournie par l'utilisateur (secret Vercel), en choix explicite et plafonné | Mode `demo` : session prête sans association, 2 validations et 20 appels par session, 100 analyses par jour ; écart assumé à la règle initiale « pas de clé de l'auteur » |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel
@@ -181,7 +181,7 @@ Départ du compteur : 13:28:37 CEST. Les durées incluent les attentes d'accès,
 
 | Jalon | Début | Fin | Notes |
 |---|---|---|---|
-| Lecture du cadrage, accès, recherches Meta/OpenAI | 13:28 | 13:41 | 3 recherches documentaires en parallèle |
+| Lecture des consignes, accès, recherches Meta/OpenAI | 13:28 | 13:41 | 3 recherches documentaires en parallèle |
 | J0 socle, MCP, composant, déploiement | 13:41 | 13:47 | MCP déployé et testé de l'extérieur à 13:46 |
 | J1 session, association, chiffrement, tests | 13:47 | 13:52 | 28 tests |
 | J2 cœur (CSV, image, IA, run, rapport) | 13:52 | 14:01 | 67 tests |

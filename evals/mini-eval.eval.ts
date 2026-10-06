@@ -1,5 +1,5 @@
 /**
- * Mini-évaluation API RÉELLE (brief §13) — locale, hors CI, plafonnée.
+ * Mini-évaluation API RÉELLE — locale, hors CI, plafonnée.
  * Même adaptateur, même prompt, même prétraitement que l'application.
  * Clé lue dans .env.eval.local (non versionné, propriétaire seul), jamais affichée.
  * Usage : pnpm eval

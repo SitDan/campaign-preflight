@@ -1,4 +1,4 @@
-# Cadrage privé — ne jamais versionner
+# Documents de travail locaux — jamais versionnés
 .local-spec/
 *.pdf
 

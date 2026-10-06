@@ -9,7 +9,7 @@ Référentiel : `rules/instagram-feed.json`, version 1.0.0. Le serveur le valide
 | Meta Ads Guide — Instagram Feed, image | https://www.facebook.com/business/ads-guide/update/image/instagram-feed | HTTP 200 sans connexion (récupération HTML directe), sans date sur la page |
 | Documentation développeur Meta — Media Requirements (API Ads Instagram) | https://developers.facebook.com/documentation/ads-commerce/instagram/ads-api/reference/media-requirements | HTTP 200 sans connexion |
 
-Lors du cadrage, la page Ads Guide redirigeait vers une connexion. Le 2026-10-06, elle était lisible publiquement. Les libellés ci-dessous ont été extraits du HTML récupéré. Aucune valeur ne provient de la mémoire d'un modèle.
+Lors d'une consultation antérieure, la page Ads Guide redirigeait vers une connexion. Le 2026-10-06, elle était lisible publiquement. Les libellés ci-dessous ont été extraits du HTML récupéré. Aucune valeur ne provient de la mémoire d'un modèle.
 
 ## Exigences Meta appliquées (`meta_requirement`)
 

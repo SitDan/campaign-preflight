@@ -1,5 +1,5 @@
 /**
- * Plafonds PRODUIT du POC (brief §3). Ce ne sont pas des exigences Meta :
+ * Plafonds PRODUIT du POC. Ce ne sont pas des exigences Meta :
  * un dépassement signifie « non pris en charge par ce POC ».
  * Référence unique : toute vérification serveur lit ces valeurs.
  */
@@ -11,7 +11,7 @@ export const LIMITS = {
   mediaType: "image",
   locales: ["fr-FR", "en-GB", "de-DE"] as const,
 
-  /** Décision utilisateur du 2026-10-06 (15:47) : 10 annonces / 10 visuels par kit (brief : 3 / 3). */
+  /** Décision utilisateur du 2026-10-06 (15:47) : 10 annonces / 10 visuels par kit (valeurs initiales : 3 / 3). */
   maxRowsPerKit: 10,
   maxFilesPerKit: 10,
   csvMaxBytes: 64 * KIB,
@@ -31,7 +31,7 @@ export const LIMITS = {
   /**
    * Décisions utilisateur du 2026-10-06 : 14:53 (sessions longues) puis 15:47 (kits de 10).
    * 5 validations × 10 annonces = 50 annonces par saisie de clé ; le document de session
-   * Redis reste sous ~1 Mo dans le pire cas (≈ 5 à 20 Ko par annonce). Brief : 3 / 3 / 9.
+   * Redis reste sous ~1 Mo dans le pire cas (≈ 5 à 20 Ko par annonce). Valeurs initiales : 3 / 3 / 9.
    */
   runsPerSession: 5,
   aiAttemptsPerRun: 10,
@@ -39,7 +39,7 @@ export const LIMITS = {
   modelMaxOutputTokens: 2_048,
   heavyOperationsPerSession: 1,
 
-  /** Décision utilisateur du 2026-10-06 (14:53) : 3 h absolues (brief : 60 min) pour limiter les ressaisies. */
+  /** Décision utilisateur du 2026-10-06 (14:53) : 3 h absolues (valeur initiale : 60 min) pour limiter les ressaisies. */
   sessionTtlMs: 3 * 60 * 60 * 1000,
   /** Clé de démonstration de l'opérateur (décision utilisateur du 2026-10-06, 16:10) : plafonds serrés. */
   demoRunsPerSession: 2,
@@ -50,12 +50,12 @@ export const LIMITS = {
   setupBodyMaxBytes: 8 * KIB,
   runRequestMaxBytes: 80 * KIB,
 
-  /** Échéances d'exécution (brief §9). */
+  /** Échéances d'exécution. */
   rowClaimMaxMs: 75_000,
   appDeadlineMs: 45_000,
   providerTimeoutMs: 30_000,
 
-  /** Bornes du contrat de sortie IA (brief §11). */
+  /** Bornes du contrat de sortie IA. */
   aiMaxObservations: 10,
   aiMaxFindings: 10,
 } as const;

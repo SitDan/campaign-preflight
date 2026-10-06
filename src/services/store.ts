@@ -1,7 +1,7 @@
 import type { SessionDoc } from "./types";
 
 /**
- * Frontière de persistance (une seule interface, brief §6).
+ * Frontière de persistance (une seule interface).
  * Toutes les écritures sur une session sont conditionnelles (compare-and-set
  * sur une version) et réappliquent l'échéance ABSOLUE de la session : une
  * session supprimée ou expirée n'est jamais recréée par une écriture tardive.

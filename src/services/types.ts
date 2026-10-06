@@ -21,7 +21,7 @@ export type RunDoc = {
 };
 
 /**
- * Document Redis borné, un par session (brief §8) : capacités hachées,
+ * Document Redis borné, un par session : capacités hachées,
  * clé chiffrée, manifests/résultats et compteurs. Échéance absolue.
  */
 export type SessionDoc = {

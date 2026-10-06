@@ -2,11 +2,6 @@
 
 POC : serveur MCP (Next.js sur Vercel) + composant ChatGPT pour vérifier un kit d'annonces Instagram Feed (images) avant transmission à l'agence.
 
-## Cadrage (local, non versionné)
-- `.local-spec/BRIEF_DEVELOPPEMENT_CAMPAIGN_PREFLIGHT.md` — source de vérité (contrats, plafonds).
-- `.local-spec/PLAN_DEVELOPPEMENT_CAMPAIGN_PREFLIGHT.md` — jalons J0–J4.
-- Ne jamais versionner `.local-spec/`, un PDF ou un secret.
-
 ## Commandes (Node 24, pnpm)
 - `pnpm dev` — widget + Next en local
 - `pnpm typecheck` · `pnpm lint` · `pnpm test` · `pnpm build` · `pnpm check` (tout)

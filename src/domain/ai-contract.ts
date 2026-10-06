@@ -3,7 +3,7 @@ import { LIMITS } from "@/config/limits";
 import { FINDING_KINDS, REFERENCE_FIELDS, type Finding, type FindingKind, type KitRow, type NotChecked, type Observation, type ReferenceField } from "./types";
 
 /**
- * Contrat de sortie du modèle (brief §11). Le schéma JSON strict est envoyé
+ * Contrat de sortie du modèle. Le schéma JSON strict est envoyé
  * à l'API ; la validation zod côté serveur ajoute les bornes de longueur
  * (non garanties par le sous-ensemble strict). Toute sortie hors contrat =
  * revue non achevée.

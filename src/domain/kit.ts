@@ -3,7 +3,7 @@ import { LIMITS } from "@/config/limits";
 import type { KitManifest, KitRow, ManifestRow, RowIssue } from "./types";
 
 /**
- * Contrat CSV imposé (brief §5) : UTF-8 (BOM accepté), séparateur virgule,
+ * Contrat CSV imposé : UTF-8 (BOM accepté), séparateur virgule,
  * en-têtes exacts, pas d'auto-détection ni de mapping. Fonction pure.
  */
 export const REQUIRED_COLUMNS = ["row_id", "ad_name", "locale", "placement", "media_filename", "primary_text", "cta", "landing_url"] as const;
@@ -55,7 +55,7 @@ const normalizeHeader = (value: string) =>
 
 /**
  * Diagnostics déterministes des erreurs fréquentes, pour guider la correction.
- * Rien n'est corrigé automatiquement : le contrat reste strict (brief §5).
+ * Rien n'est corrigé automatiquement : le contrat reste strict.
  */
 export function diagnoseCsv(csvText: string): string[] {
   const hints: string[] = [];

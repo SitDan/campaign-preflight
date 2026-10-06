@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
 /**
- * Enveloppe AES-256-GCM versionnée (brief §8) :
+ * Enveloppe AES-256-GCM versionnée :
  * clé maître serveur 32 octets, IV aléatoire neuf de 12 octets, tag 16 octets.
  * L'AAD canonique lie APP_ENV, sessionId, expiresAt et keyId ; elle est
  * reconstruite depuis le contexte serveur, jamais lue dans l'enveloppe.

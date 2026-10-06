@@ -18,7 +18,7 @@ Ce compromis convient à une **démonstration limitée dans le temps, sur donné
 - l'utilisateur garde le contrôle de sa dépense et peut révoquer sa clé chez OpenAI ;
 - l'exposition est bornée dans le temps.
 
-Prix payé : une ressaisie par session. Le brief prévoyait 60 minutes et 3 validations. Le 2026-10-06, l'utilisateur a choisi **3 heures et 10 validations** pour réduire cette friction, ce qui allonge d'autant la durée de détention de la clé chiffrée. Pour un pilote réel, la suite logique est OAuth avec un coffre de secrets, ou le financement des appels par le service avec des quotas par utilisateur. Ce choix relève du financement et de l'authentification, pas seulement de la technique.
+Prix payé : une ressaisie par session. Le POC prévoyait initialement 60 minutes et 3 validations. Le 2026-10-06, l'utilisateur a choisi **3 heures et 10 validations** pour réduire cette friction, ce qui allonge d'autant la durée de détention de la clé chiffrée. Pour un pilote réel, la suite logique est OAuth avec un coffre de secrets, ou le financement des appels par le service avec des quotas par utilisateur. Ce choix relève du financement et de l'authentification, pas seulement de la technique.
 
 ## Clé de démonstration (choix explicite, plafonné)
 
@@ -61,7 +61,7 @@ Nous ne promettons ni un chiffrement de bout en bout, ni une clé « jamais en c
 - Le bearer (32 octets) est transmis une seule fois, en `no-store`. Il vit en mémoire dans une fermeture du client HTTP du composant. Il n'apparaît pas dans l'état de l'hôte, le contexte du modèle, une URL ou un stockage navigateur.
 - Les routes privées n'acceptent qu'`Authorization: Bearer`. L'appartenance session → run → ligne est contrôlée à chaque accès. Les tests A/B couvrent le cas où les identifiants de l'autre session sont connus.
 - CORS n'accepte que les origines exactes listées dans `WIDGET_ALLOWED_ORIGIN`, jamais `*`, `null` ni une origine reflétée. CORS n'est pas une autorisation.
-- L'échéance absolue est de 3 heures après la création, sans prolongation (le brief prévoyait 60 minutes ; voir « Pourquoi ce choix »). `DELETE /api/session` retire la clé chiffrée, les résultats et l'index de code. Une écriture tardive ne recrée rien : le compare-and-set échoue sur une clé absente.
+- L'échéance absolue est de 3 heures après la création, sans prolongation (initialement 60 minutes ; voir « Pourquoi ce choix »). `DELETE /api/session` retire la clé chiffrée, les résultats et l'index de code. Une écriture tardive ne recrée rien : le compare-and-set échoue sur une clé absente.
 
 ## Anti-abus
 

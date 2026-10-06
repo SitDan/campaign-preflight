@@ -1,7 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 
 /**
- * Capacités de session (brief §8) :
+ * Capacités de session :
  * - bearer : 32 octets aléatoires ; le jeton transmis au widget est
  *   « cps_<sessionId>.<secret> » — sessionId sert de localisateur, seul le
  *   secret autorise ; Redis n'en garde que l'empreinte SHA-256.

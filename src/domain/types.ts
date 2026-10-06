@@ -1,6 +1,6 @@
 import type { CheckResult, ImageFacts } from "./rules";
 
-/** Une ligne du CSV imposé : une annonce, une locale, une image (brief §5). */
+/** Une ligne du CSV imposé : une annonce, une locale, une image. */
 export type KitRow = {
   rowId: string;
   adName: string;

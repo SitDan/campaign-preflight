@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Référentiel de règles techniques (brief §10). Fonctions pures, sans
+ * Référentiel de règles techniques. Fonctions pures, sans
  * dépendance Next.js / Redis / OpenAI.
  *
  * Natures :

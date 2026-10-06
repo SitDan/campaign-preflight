@@ -3,7 +3,7 @@ import { describeCoverage, type CheckResult, type Coverage, type Ruleset } from 
 import type { AiErrorCode, AiReview, KitRow, RowIssue, RowState } from "./types";
 
 /**
- * Rapport versionné (brief §12) : mesures certaines, alertes IA « à confirmer »
+ * Rapport versionné : mesures certaines, alertes IA « à confirmer »
  * et contrôles non effectués, sans média brut ni secret. Fonctions pures.
  */
 export const REPORT_SCHEMA = "campaign-preflight.report/v1";

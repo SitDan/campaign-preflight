@@ -1,5 +1,5 @@
 /**
- * Journalisation par liste autorisée (brief §8) : événement, requestId non
+ * Journalisation par liste autorisée : événement, requestId non
  * secret, code, durée, statut, origine du composant, usage numérique.
  * Jamais de corps HTTP, headers, secrets, CSV, prompt ni erreur fournisseur brute.
  */

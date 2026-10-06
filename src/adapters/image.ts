@@ -5,7 +5,7 @@ import type { ImageFacts } from "@/domain/rules";
 import type { MediaError } from "@/domain/types";
 
 /**
- * Inspection d'une image en mémoire (brief §10). Rien n'est écrit sur disque.
+ * Inspection d'une image en mémoire. Rien n'est écrit sur disque.
  * - JPEG/PNG statiques reconnus par SIGNATURE puis décodage ; MIME/extension ignorés.
  * - Mesures de l'ORIGINAL (dimensions après orientation EXIF).
  * - Copie IA séparée : orientée, sRGB, sans métadonnées, cadre complet, ≤ 2048 px et ≤ 1 Mio.
