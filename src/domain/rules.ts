@@ -111,17 +111,23 @@ function bounds(rule: Rule): [number, number] | null {
   return [min * (1 - tolerance), max * (1 + tolerance)];
 }
 
+/** Décimales à la française. */
+export function frNumber(value: number, digits: number): string {
+  return value.toFixed(digits).replace(".", ",");
+}
+
 export function formatValue(value: number | string, unit: Rule["unit"]): string {
   if (typeof value === "string") return value.toUpperCase();
   switch (unit) {
     case "bytes":
-      return value >= 1024 * 1024 ? `${(value / (1024 * 1024)).toFixed(2)} Mio` : `${(value / 1024).toFixed(1)} Kio`;
+      if (value >= 1_000_000 && value % 1_000_000 === 0) return `${value / 1_000_000} MB`;
+      return value >= 1024 * 1024 ? `${frNumber(value / (1024 * 1024), 2)} Mio` : `${frNumber(value / 1024, 1)} Kio`;
     case "px":
       return `${value} px`;
     case "pixels":
-      return `${(value / 1_000_000).toFixed(2)} Mpx`;
+      return `${frNumber(value / 1_000_000, 2)} Mpx`;
     case "ratio":
-      return value.toFixed(3);
+      return frNumber(value, 3);
     case "chars":
       return `${value} caractères`;
     default:

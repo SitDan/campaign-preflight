@@ -36,6 +36,6 @@ export function replace(parent: Element, ...children: Child[]): void {
 }
 
 export function formatBytes(bytes: number): string {
-  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} Mio`;
-  return `${(bytes / 1024).toFixed(1)} Kio`;
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2).replace(".", ",")} Mio`;
+  return `${(bytes / 1024).toFixed(1).replace(".", ",")} Kio`;
 }

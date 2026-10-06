@@ -219,7 +219,9 @@ async function analyze() {
     }
     state.report = result.data;
     const done = result.data.rows.find((item) => item.rowId === row.rowId);
-    state.progress.push(`Annonce « ${row.adName} » : ${done?.ai?.status === "completed" ? "terminée" : done?.ai?.errorCode ? `mesures faites, ${AI_ERROR_MESSAGES[done.ai.errorCode].toLowerCase()}` : `état ${done?.phase ?? "inconnu"}`}.`);
+    state.progress.push(
+      `Annonce « ${row.adName} » : ${done?.ai?.status === "completed" ? "terminée." : done?.ai?.errorCode ? `mesures faites — ${AI_ERROR_MESSAGES[done.ai.errorCode]}` : `état ${done?.phase ?? "inconnu"}.`}`,
+    );
     render();
   }
   setBusy(false, "Analyse terminée.");
@@ -379,6 +381,32 @@ function statusBadge(check: CheckResult) {
   return h("span", { className: `badge ${css}` }, label ?? check.status);
 }
 
+function checkRow(check: CheckResult) {
+  return h(
+    "tr",
+    {},
+    h("td", {}, check.label, h("div", { className: "muted" }, ORIGIN_LABEL[check.origin])),
+    h("td", {}, statusBadge(check)),
+    h("td", {}, check.observed),
+    h("td", {}, check.expected),
+    h("td", {}, check.status === "pass" ? "" : check.action, check.sourceUrl ? h("div", { className: "muted" }, check.sourceUrl) : check.reason ? h("div", { className: "muted" }, check.reason) : null),
+  );
+}
+
+const CHECK_HEADER = () => h("tr", {}, h("th", {}, "Contrôle"), h("th", {}, "Statut"), h("th", {}, "Observé"), h("th", {}, "Attendu"), h("th", {}, "Action / source"));
+
+/** Écarts et contrôles non vérifiés en premier ; contrôles conformes repliés. */
+function checksTables(checks: CheckResult[]) {
+  const visible = checks.filter((check) => check.status !== "not_applicable");
+  if (!visible.length) return [];
+  const attention = visible.filter((check) => check.status !== "pass");
+  const passed = visible.filter((check) => check.status === "pass");
+  return [
+    attention.length ? h("table", {}, CHECK_HEADER(), ...attention.map(checkRow)) : h("p", {}, "Aucun écart technique sur les règles appliquées."),
+    passed.length ? h("details", {}, h("summary", {}, `${passed.length} contrôle(s) conforme(s) — détail et sources`), h("table", {}, CHECK_HEADER(), ...passed.map(checkRow))) : null,
+  ];
+}
+
 function rowCard(row: ReportRow) {
   const facts = row.facts;
   const thumb = state.thumbs.get(row.mediaFilename);
@@ -395,7 +423,7 @@ function rowCard(row: ReportRow) {
         {},
         h("h3", {}, row.adName || row.rowId),
         h("div", { className: "muted" }, `${row.rowId} · ${row.locale} · ${row.placement} · ${row.mediaFilename || "sans image"}`),
-        facts ? h("div", {}, `${facts.format.toUpperCase()} · ${facts.width} × ${facts.height} px · ${formatBytes(facts.fileBytes)} · ratio ${(facts.width / facts.height).toFixed(3)}`) : null,
+        facts ? h("div", {}, `${facts.format.toUpperCase()} · ${facts.width} × ${facts.height} px · ${formatBytes(facts.fileBytes)} · ratio ${(facts.width / facts.height).toFixed(3).replace(".", ",")}`) : null,
       ),
     ),
     ...row.kitIssues.map((issue) => h("div", { className: "error" }, `Contrat de kit — ${issue.field} : ${issue.message}`)),
@@ -404,26 +432,7 @@ function rowCard(row: ReportRow) {
       ? h("div", { className: "error" }, row.phase === "interrupted" ? "Traitement interrompu : aucune relance automatique. Lancez une nouvelle validation si nécessaire." : "Issue de l'appel IA inconnue (un coût a pu être facturé). Aucune relance automatique.")
       : null,
     row.phase === "awaiting_media" ? h("p", { className: "muted" }, "Pas encore analysée.") : null,
-    row.technical.length
-      ? h(
-          "table",
-          {},
-          h("tr", {}, h("th", {}, "Contrôle"), h("th", {}, "Statut"), h("th", {}, "Observé"), h("th", {}, "Attendu"), h("th", {}, "Action / source")),
-          ...row.technical
-            .filter((check) => check.status !== "not_applicable")
-            .map((check) =>
-              h(
-                "tr",
-                {},
-                h("td", {}, check.label, h("div", { className: "muted" }, ORIGIN_LABEL[check.origin])),
-                h("td", {}, statusBadge(check)),
-                h("td", {}, check.observed),
-                h("td", {}, check.expected),
-                h("td", {}, check.status === "pass" ? "" : check.action, check.sourceUrl ? h("div", { className: "muted" }, check.sourceUrl) : check.reason ? h("div", { className: "muted" }, check.reason) : null),
-              ),
-            ),
-        )
-      : null,
+    ...checksTables(row.technical),
     ai
       ? h(
           "div",
@@ -463,10 +472,11 @@ function reportSection() {
       h(
         "div",
         { className: "summary-line" },
-        h("span", { className: "s-fail" }, `${s.technicalErrors} erreur(s) technique(s)`),
-        h("span", { className: "s-fail" }, `${s.kitIssues} anomalie(s) de kit`),
-        h("span", { className: "s-warn" }, `${s.aiAlerts} alerte(s) IA à confirmer`),
-        h("span", { className: "s-warn" }, `${s.recommendationGaps} écart(s) à des recommandations`),
+        h("span", { className: s.technicalErrors ? "s-fail" : "s-info" }, `${s.technicalErrors} erreur(s) technique(s)`),
+        h("span", { className: s.kitIssues ? "s-fail" : "s-info" }, `${s.kitIssues} anomalie(s) de kit`),
+        h("span", { className: s.aiAlerts ? "s-warn" : "s-info" }, `${s.aiAlerts} alerte(s) IA à confirmer`),
+        h("span", { className: s.recommendationGaps ? "s-warn" : "s-info" }, `${s.recommendationGaps} écart(s) à des recommandations`),
+        h("span", { className: s.aiNotCompleted ? "s-fail" : "s-info" }, `${s.aiNotCompleted} revue(s) IA non achevée(s)`),
         h("span", { className: "s-info" }, `${s.notChecked} contrôle(s) non vérifié(s)`),
       ),
       h("p", { className: "muted" }, `Règles ${report.rulesetId} v${report.rulesetVersion} (sources Meta lues le 2026-10-06) · prompt ${report.promptVersion} · modèle ${report.model}. Pas de score global ni de validation par Meta.`),
