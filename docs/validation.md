@@ -155,6 +155,10 @@ _Constats affichés à l'utilisateur lors de ce parcours : capture non fournie._
 - **Correction mineure** : la sortie de l'outil d'ouverture mentionne désormais les deux choix de clé (démonstration ou clé personnelle). ChatGPT avait paraphrasé « ta propre clé » alors que la clé de démo était utilisée.
 - **Cohérence de la synthèse (16:47)** : dans un premier passage, ChatGPT annonçait « kit globalement propre » avant de lister des problèmes, parce que le résumé commençait par « 0 erreur technique ». Le résumé commence désormais par le verdict par annonce, selon la même logique que le composant.
   - Nouveau passage : « Le kit n'est pas encore prêt à partir au media buyer : 2 annonces sur 3 sont à vérifier/corriger », puis UK offre, DE langue, FR rien à signaler.
+- **Les trois prompts du README, testés dans ChatGPT (16:50)** :
+  - prompt 1 : parcours complet et synthèse automatique ;
+  - prompt 2 : ChatGPT rédige le message de corrections à partir des résultats partagés ;
+  - prompt 3 (« Mon visuel fait 1080 × 1920 px : est-il accepté en Instagram Feed ? Cite la règle Meta. ») : ChatGPT appelle `get_meta_requirements` et répond « Non : ratio 0,5625 (9:16), hors de la plage 4:5 (0,8) à 1,91:1 ; viser 1080 × 1350 ». Il cite « Technical Requirements » et le Meta Ads Guide, vérifié le 6 octobre 2026, avec l'URL officielle.
 
 ### Clé de démonstration en production (16:17–16:19), kit d'exemple
 
