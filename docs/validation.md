@@ -141,13 +141,44 @@ _Parcours complet dans ChatGPT avec une vraie clé : à compléter._
 
 ## 7. Temps réel
 
+Départ du compteur : 13:28:37 CEST. Les durées incluent les attentes d'accès, signalées comme telles.
+
 | Jalon | Début | Fin | Notes |
 |---|---|---|---|
 | Lecture du cadrage, accès, recherches Meta/OpenAI | 13:28 | 13:41 | 3 recherches documentaires en parallèle |
 | J0 socle, MCP, composant, déploiement | 13:41 | 13:47 | MCP déployé et testé de l'extérieur à 13:46 |
 | J1 session, association, chiffrement, tests | 13:47 | 13:52 | 28 tests |
-| J2 cœur (CSV, image, IA, run, rapport) | 13:52 | 14:01 | 67 tests au total |
-| Composant complet, fixtures, éval, docs | 14:01 | 14:15 | Banc local de bout en bout |
-| Attente d'accès : Redis | 14:15 | 14:16 | Acceptation des conditions Upstash par l'utilisateur |
-| Déploiement de J1/J2 avec Redis, parcours API sur Vercel | 14:16 | 14:20 | |
-| Preuve ChatGPT : ajout, rendu, origine réelle, CORS | 14:17 | 14:24 | Ajout du plugin et captures par l'utilisateur |
+| J2 cœur (CSV, image, IA, run, rapport) | 13:52 | 14:01 | 67 tests |
+| Composant complet, fixtures, évaluation, docs, banc local | 14:01 | 14:15 | Parcours local de bout en bout |
+| Attente d'accès : Redis (conditions Upstash) | 14:15 | 14:16 | Action de l'utilisateur |
+| J1/J2 sur Vercel avec Redis | 14:16 | 14:20 | Parcours API réel sur Vercel |
+| Preuves ChatGPT (ajout, rendu, origine, CORS, association, fichiers, `ui/message`) | 14:17 | 14:42 | Captures de l'utilisateur |
+| Retours utilisateur : parcours guidé, sélecteur unique, diagnostics CSV, sessions de 3 h | 14:28 | 15:00 | 4 itérations déployées |
+| Dépôt privé, CI (bloquée puis désactivée), mini-évaluation sol/luna, bascule vers luna | 15:01 | 15:15 | Évaluation : 12 appels, ≈ 0,05 $ au total |
+
+## 8. Coûts observés
+
+| Poste | Constat |
+|---|---|
+| OpenAI (mini-évaluation) | 12 appels, ≈ 0,048 $ (sol) + ≈ 0,0026 $ (luna), au tarif Standard lu le 2026-10-06 |
+| OpenAI (clé synthétique) | 0 $ : appels refusés en 401 |
+| Vercel | projet existant sur l'équipe de l'utilisateur ; aucune option payante activée par ce POC |
+| Upstash Redis | intégration Marketplace, plan par défaut de l'intégration ; à vérifier dans le tableau de bord |
+| GitHub | dépôt privé ; Actions désactivé, donc 0 minute |
+
+## 9. Limites et suite proposée (une journée)
+
+Limites restantes :
+- **Clé** : une saisie par session (3 h, 10 validations). Un rechargement du composant impose une nouvelle session.
+- **Kit** : 3 annonces au plus, en Instagram Feed uniquement.
+- **Évaluation** : 6 cas seulement, aux textes nets ; aucun taux de fiabilité n'est revendiqué.
+- **Export** : pas de téléchargement dans ChatGPT, l'hôte ne l'annonce pas ; repli CSV sélectionnable.
+- **Accès** : non vérifié avec un second compte ChatGPT ni sur un workspace Business/Enterprise.
+- **Distribution** : réserve de la politique OpenAI sur la collecte de clés ; aucune soumission à l'annuaire.
+
+Suite proposée, par ordre de priorité :
+1. **OAuth** via Descope MCP Auth (Marketplace Vercel). Commencer par vérifier la compatibilité ChatGPT ↔ Descope (30 min), puis stocker la clé par compte dans un coffre.
+2. **Kit plus large** (10 à 20 annonces), après mesure de la latence et du coût sur des visuels réels, avec un traitement par lots dans le composant.
+3. **Évaluation élargie** : textes fins, fonds chargés, offres « compatibles mais différentes », dates ambiguës, mélange de langues.
+4. **Placements supplémentaires** : Facebook Feed image, puis Stories, chacun avec ses règles sourcées et ses tests.
+5. **Second fournisseur IA** derrière `VisionAnalyzer`, qualifié par la même évaluation.
