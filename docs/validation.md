@@ -173,6 +173,7 @@ Le modèle n'est pas déterministe : un seul passage par version ne prouve pas l
 | 15:47 | Kits de 10 annonces pour le POC | 10 annonces / 10 visuels par kit, 10 appels IA par validation, **5 validations** par session (50 annonces par saisie de clé ; document Redis gardé sous ~1 Mo). Écart assumé aux plafonds initiaux |
 | 16:05 | Consigne d'origine relue (test « comme un client », sans aide) ; dépôt rendu **public** ; README dans l'ordre de la consigne (client, pourquoi, choix, journée de plus) ; fiche avec « ce que l'app ne fait pas » | Mention du nom de test neutralisée avant publication ; CI gardée désactivée |
 | 16:10 | **Clé de démonstration** fournie par l'utilisateur (secret Vercel), en choix explicite et plafonné | Mode `demo` : session prête sans association, 2 validations et 20 appels par session, 100 analyses par jour ; écart assumé à la règle initiale « pas de clé de l'auteur » |
+| 16:30 | Plus d'interaction avec ChatGPT, sans risque avant l'envoi | Résultats nettoyés partagés avec le modèle en fin d'analyse (`ui/update-model-context`), prompts 2 et 3 conversationnels ; outil `prepare_kit` reporté à « une journée de plus » |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel

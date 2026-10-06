@@ -10,11 +10,12 @@ export type HostInfo = {
   openLinks: boolean;
   downloadFile: boolean;
   message: boolean;
+  modelContext: boolean;
   error?: string;
 };
 
 const app = new App({ name: "campaign-preflight-widget", version: "1.0.0" }, {}, { autoResize: true });
-let info: HostInfo = { connected: false, hostName: "inconnu", openLinks: false, downloadFile: false, message: false };
+let info: HostInfo = { connected: false, hostName: "inconnu", openLinks: false, downloadFile: false, message: false, modelContext: false };
 
 export async function connectHost(): Promise<HostInfo> {
   try {
@@ -26,6 +27,7 @@ export async function connectHost(): Promise<HostInfo> {
       openLinks: Boolean(caps.openLinks),
       downloadFile: Boolean(caps.downloadFile),
       message: Boolean(caps.message),
+      modelContext: Boolean(caps.updateModelContext),
     };
   } catch (error) {
     info = { ...info, connected: false, error: error instanceof Error ? error.message : "connexion impossible" };
@@ -75,6 +77,21 @@ export async function downloadText(filename: string, mimeType: string, text: str
       contents: [{ type: "resource", resource: { uri: `file:///${filename}`, mimeType, text } }],
     });
     return !result.isError;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Partage un résumé NETTOYÉ (sans clé, jeton, image ni lien privé) avec le
+ * modèle de la conversation, via le pont documenté ui/update-model-context.
+ * Aucun message n'est envoyé : le modèle l'utilisera à la prochaine question.
+ */
+export async function shareWithModel(text: string): Promise<boolean> {
+  if (!info.connected || !info.modelContext) return false;
+  try {
+    await app.updateModelContext({ content: [{ type: "text", text }] });
+    return true;
   } catch {
     return false;
   }

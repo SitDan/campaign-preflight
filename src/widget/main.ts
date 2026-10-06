@@ -4,7 +4,7 @@ import { AI_ERROR_MESSAGES, toSummaryText, type Report, type ReportRow } from "@
 import type { CheckResult } from "@/domain/rules";
 import { createApi, forgetSession, hasSession } from "./api";
 import { formatBytes, h, replace } from "./dom";
-import { connectHost, downloadText, hostInfo, hostTheme, openExternal, sendChatMessage } from "./host";
+import { connectHost, downloadText, hostInfo, hostTheme, openExternal, sendChatMessage, shareWithModel } from "./host";
 
 type WidgetConfig = { apiBase: string };
 
@@ -284,7 +284,13 @@ async function analyze() {
     render();
   }
   state.run = null;
-  setBusy(false, "Vérification terminée.");
+  const shared = state.report ? await shareWithModel(modelContextText(state.report)) : false;
+  setBusy(
+    false,
+    shared
+      ? "Vérification terminée. ChatGPT connaît maintenant le résumé des résultats (sans clé ni image) : posez-lui vos questions dans la conversation, par exemple « Pourquoi l'annonce UK est-elle à corriger ? »."
+      : "Vérification terminée. Pour en discuter avec ChatGPT, utilisez le bouton « Rédiger l'e-mail » ci-dessous.",
+  );
 }
 
 async function exportCsv() {
@@ -330,6 +336,12 @@ async function downloadTemplate() {
   state.exportText = ok ? "" : CSV_TEMPLATE;
   state.exportNote = ok ? "Modèle demandé à ChatGPT." : "Modèle CSV à copier dans un fichier .csv :";
   render();
+}
+
+/** Contexte partagé avec le modèle : le résumé nettoyé, sans consigne de réponse. */
+function modelContextText(report: Report): string {
+  const summary = toSummaryText(report).replace(/\n\nLes alertes IA sont à confirmer[\s\S]*$/, "");
+  return `Résultats de la dernière vérification Campaign Preflight (contexte pour répondre aux questions de l'utilisateur) :\n${summary}\n\nLes alertes IA sont à confirmer par une personne ; les limites du POC ne sont pas des règles Meta.`;
 }
 
 /** Points à corriger, à vérifier ou vérification incomplète : l'e-mail de corrections a un sens. */
@@ -698,7 +710,7 @@ function diagnostics() {
     h("div", {}, `Version du composant : ${__WIDGET_BUILD__}`),
     h("div", {}, `Origine du composant : ${window.location.origin}`),
     h("div", {}, `Hôte : ${info.connected ? info.hostName : `non connecté${info.error ? ` (${info.error})` : ""}`}`),
-    h("div", {}, `Capacités : liens externes ${info.openLinks ? "oui" : "non"} · téléchargement ${info.downloadFile ? "oui" : "non"} · message ${info.message ? "oui" : "non"}`),
+    h("div", {}, `Capacités : liens externes ${info.openLinks ? "oui" : "non"} · téléchargement ${info.downloadFile ? "oui" : "non"} · message ${info.message ? "oui" : "non"} · contexte du modèle ${info.modelContext ? "oui" : "non"}`),
     h("div", { className: "actions" }, button("Tester l'accès au service", testService, "link")),
     state.diagnostics ? h("div", {}, state.diagnostics) : null,
   );

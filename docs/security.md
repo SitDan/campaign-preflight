@@ -77,6 +77,14 @@ Nous ne promettons ni un chiffrement de bout en bout, ni une clé « jamais en c
 - Paramètres d'appel : `store: false`, `max_output_tokens: 2048`, `reasoning.effort: low`, sortie JSON stricte. `store: false` ne garantit pas l'absence de toute rétention chez le fournisseur.
 - Le texte de l'image et les champs du CSV sont des données non fiables. Le prompt l'indique, et l'évaluation contient un cas d'injection imprimée.
 
+## Partage des résultats avec le modèle de la conversation
+
+À la fin d'une vérification, le composant partage avec ChatGPT un **résumé nettoyé** des résultats, via le pont documenté `ui/update-model-context`. Ce partage est décidé par l'utilisateur (2026-10-06) et signalé dans le composant.
+
+- **Contenu** : nom, identifiant et locale des annonces, écarts, alertes et contrôles non effectués.
+- **Jamais transmis** : clé, jeton, image, lien privé ou identifiant de session.
+- **Effet** : le modèle s'en sert pour répondre aux questions suivantes de l'utilisateur, dans **sa propre** conversation. Aucun message n'est envoyé automatiquement.
+
 ## Journalisation
 
 Les logs suivent une liste autorisée : événement, code, statut, durée, origine du composant, usage numérique et modèle. Ils n'incluent jamais de corps HTTP, de headers, de secret, de CSV, de prompt ou d'erreur fournisseur brute. Aucune route n'expose l'environnement.

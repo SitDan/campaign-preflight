@@ -32,9 +32,9 @@ Prérequis : un ChatGPT qui autorise les serveurs MCP personnalisés. Aucune cl�
 
 Trois prompts :
 
-1. `@Campaign Preflight Vérifie mon kit Instagram Feed avant de l'envoyer au media buyer.`
-2. `@Campaign Preflight Quelles règles Meta vérifies-tu pour une image Instagram Feed, et d'où viennent-elles ?`
-3. Après « Rédiger l'e-mail de demande de corrections » : `Transforme ça en message Slack court pour l'équipe créative, avec un tableau des corrections par annonce.`
+1. `@Campaign Preflight Vérifie mon kit Instagram Feed avant de l'envoyer au media buyer.` : l'app s'ouvre ; clé de démonstration, kit d'exemple, vérification.
+2. Une fois la vérification terminée, dans le chat : `Pourquoi l'annonce UK est-elle à corriger ? Qu'est-ce qui est certain et qu'est-ce qui est à confirmer ?` : ChatGPT répond à partir des résultats, que l'app lui partage sans clé ni image.
+3. `Rédige le message Slack pour l'équipe créative avec un tableau des corrections par annonce.`
 
 Sur le kit d'exemple, le résultat attendu est le suivant :
 
@@ -54,6 +54,7 @@ Sur le kit d'exemple, le résultat attendu est le suivant :
 
 ## Avec une journée de plus
 
+- **Préparer le kit depuis le chat** : un outil `prepare_kit` avec lequel ChatGPT transforme un brief en texte libre, ou un tableau mal formaté, en kit au bon format. L'app le valide et l'affiche ; il ne reste qu'à ajouter les images.
 - **OAuth**, pour une seule connexion par utilisateur, sans ressaisie de clé.
 - **Facebook Feed et Stories**, chacun avec ses règles Meta sourcées.
 
