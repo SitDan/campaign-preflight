@@ -45,15 +45,6 @@ Le bouton « Essayer avec un exemple » charge un kit fictif. Résultat attendu 
 4. **Choix du modèle d'IA**, restreint à un seul modèle dans le POC.
 5. **Création automatique des campagnes dans Meta** à partir du kit validé (MCP ou API Marketing de Meta).
 
-À valider ensemble :
-- kits de plus de 10 annonces ;
-- contrôles de texte supplémentaires ;
-- historique des vérifications ;
-- veille des spécifications Meta ;
-- évaluation sur des cas réels ;
-- second fournisseur d'IA ;
-- interface en anglais.
-
 ## Technique
 
 - **Stack** : Next.js / TypeScript sur Vercel, serveur MCP avec composant MCP Apps, OpenAI (API Responses), Redis Upstash.
