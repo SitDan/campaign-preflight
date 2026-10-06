@@ -167,3 +167,32 @@ describe("règles techniques", () => {
     }
   });
 });
+
+describe("diagnostics CSV (sans correction automatique)", () => {
+  it("export Excel FR au point-virgule : refusé avec la marche à suivre", () => {
+    const result = parseKit(`${HEADER.replace(/,/g, ";")}\nA1;Aurore;fr-FR;instagram_feed;a1.jpg;Texte;Acheter;https://example.com;;;;`, files("a1.jpg"));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.join(" ")).toContain("Séparateur « ; » détecté");
+  });
+
+  it("encodage non UTF-8 (caractère de remplacement) signalé", () => {
+    const result = parseKit(`${HEADER.replace("row_id", "row_id�")}\n${line()}`, files("a1.jpg"));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors.join(" ")).toContain("Encodage incorrect");
+  });
+
+  it("en-tête approchant : nom exact suggéré, jamais mappé", () => {
+    const result = parseKit(`${HEADER.replace("row_id", "Row ID").replace("primary_text", "Primary-Text")}\n${line()}`, files("a1.jpg"));
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.join(" ")).toContain("« Row ID » : le nom exact attendu est « row_id »");
+      expect(result.errors.join(" ")).toContain("« primary_text »");
+    }
+  });
+
+  it("guillemet non fermé : numéro de ligne en français", () => {
+    const result = parseKit(`${HEADER}\n${line()}\n"A2,oops`, files("a1.jpg"));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.errors[0]).toMatch(/ligne 3 : guillemet ouvert sans guillemet fermant/);
+  });
+});

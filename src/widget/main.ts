@@ -264,6 +264,19 @@ async function explain() {
   render();
 }
 
+/** Aide à la correction via ChatGPT : diagnostic nettoyé, sans données de lignes. */
+async function askCsvHelp(errors: string[]) {
+  const message = [
+    "Mon fichier CSV est refusé par Campaign Preflight (Instagram Feed). Diagnostic :",
+    ...errors.map((error) => `- ${error}`),
+    `Colonnes attendues, dans cet ordre, séparateur virgule, UTF-8 : ${CSV_TEMPLATE.trim()}.`,
+    "Explique-moi comment corriger le fichier (sans inventer de valeurs) ; je le réimporterai ensuite dans le composant.",
+  ].join("\n");
+  const sent = await sendChatMessage(message);
+  state.notice = sent ? "Diagnostic envoyé dans la conversation : ChatGPT vous aide à corriger le fichier, puis réimportez-le." : "Envoi indisponible : corrigez le fichier d'après le diagnostic ci-dessus.";
+  render();
+}
+
 async function downloadTemplate() {
   const ok = await downloadText("campaign-preflight-modele.csv", "text/csv", CSV_TEMPLATE);
   state.exportText = ok ? "" : CSV_TEMPLATE;
@@ -387,7 +400,15 @@ function kitStep(): HTMLElement {
       picker(state.images.size ? `${state.images.size} image(s) choisie(s)` : "Choisir les images", ".jpg,.jpeg,.png,image/jpeg,image/png", true, onImages),
     ),
     h("div", { className: "actions" }, button("Utiliser le kit d'exemple", loadDemo, "link"), button("Modèle CSV", downloadTemplate, "link")),
-    preview && !preview.ok ? h("div", { className: "box bad" }, h("strong", {}, "Import à corriger"), ...preview.errors.map((error) => h("div", { className: "small" }, `• ${error}`))) : null,
+    preview && !preview.ok
+      ? h(
+          "div",
+          { className: "box bad" },
+          h("strong", {}, "Import à corriger"),
+          ...preview.errors.map((error) => h("div", { className: "small" }, `• ${error}`)),
+          h("div", { className: "actions" }, button("Demander de l'aide à ChatGPT", () => void askCsvHelp(preview.errors), "link")),
+        )
+      : null,
     rows.length ? h("div", { className: "ads" }, ...rows.map(adPreviewCard)) : null,
     ...(preview?.ok ? preview.manifest.warnings.map((warning) => h("div", { className: "box warn small" }, warning)) : []),
     state.importErrors.length ? h("div", { className: "box bad" }, ...state.importErrors.map((error) => h("div", { className: "small" }, `• ${error}`))) : null,

@@ -45,6 +45,48 @@ function hasControlChars(value: string): boolean {
   return /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(value);
 }
 
+const normalizeHeader = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+
+/**
+ * Diagnostics déterministes des erreurs fréquentes, pour guider la correction.
+ * Rien n'est corrigé automatiquement : le contrat reste strict (brief §5).
+ */
+export function diagnoseCsv(csvText: string): string[] {
+  const hints: string[] = [];
+  const firstLine = csvText.replace(/^\uFEFF/, "").split(/\r?\n/, 1)[0] ?? "";
+  const semicolons = firstLine.split(";").length - 1;
+  const commas = firstLine.split(",").length - 1;
+  const tabs = firstLine.split("\t").length - 1;
+  if (semicolons > commas) {
+    hints.push("Séparateur « ; » détecté (export Excel en français) : réenregistrez le fichier au format « CSV UTF-8 (délimité par des virgules) ».");
+  } else if (tabs > commas) {
+    hints.push("Séparateur tabulation détecté : le séparateur attendu est la virgule.");
+  }
+  if (csvText.includes("\uFFFD") || /Ã[©¨ª«´®¯§ ]/.test(csvText)) {
+    hints.push("Encodage incorrect probable (accents illisibles) : réenregistrez le fichier en UTF-8.");
+  }
+  const columns = firstLine.split(semicolons > commas ? ";" : tabs > commas ? "\t" : ",").map((cell) => cell.replace(/^"|"$/g, "").trim());
+  for (const column of columns) {
+    if ((ALL_COLUMNS as readonly string[]).includes(column)) continue;
+    const match = ALL_COLUMNS.find((expected) => normalizeHeader(column) === expected || normalizeHeader(column).replace(/_/g, "") === expected.replace(/_/g, ""));
+    if (match) hints.push(`Colonne « ${column.slice(0, 40)} » : le nom exact attendu est « ${match} ».`);
+  }
+  return hints;
+}
+
+const PARSE_ERRORS: Record<string, string> = {
+  CSV_QUOTE_NOT_CLOSED: "guillemet ouvert sans guillemet fermant",
+  CSV_RECORD_INCONSISTENT_FIELDS_LENGTH: "nombre de colonnes différent de l'en-tête",
+  CSV_INVALID_CLOSING_QUOTE: "guillemet mal placé dans un champ",
+  CSV_MAX_RECORD_SIZE: "enregistrement trop long",
+};
+
 export function parseKit(csvText: string, inventory: InventoryFile[]): ImportResult {
   const errors: string[] = [];
   if (new TextEncoder().encode(csvText).byteLength > LIMITS.csvMaxBytes) return { ok: false, errors: ["CSV de plus de 64 Kio."] };
@@ -68,14 +110,15 @@ export function parseKit(csvText: string, inventory: InventoryFile[]): ImportRes
       max_record_size: LIMITS.csvMaxBytes,
     }) as string[][];
   } catch (error) {
-    const detail = error instanceof Error ? error.message.split("\n")[0]?.slice(0, 160) : "";
-    return { ok: false, errors: [`CSV mal formé (${detail}).`, ...errors] };
+    const { code, lines } = (error ?? {}) as { code?: string; lines?: number };
+    const reason = (code && PARSE_ERRORS[code]) ?? "structure illisible";
+    return { ok: false, errors: [`CSV mal formé${lines ? ` à la ligne ${lines}` : ""} : ${reason}.`, ...diagnoseCsv(csvText), ...errors] };
   }
 
   const header = records[0]?.map((cell) => cell.trim());
   if (!header) return { ok: false, errors: ["CSV vide.", ...errors] };
   const missing = REQUIRED_COLUMNS.filter((column) => !header.includes(column));
-  if (missing.length > 0) errors.push(`En-têtes obligatoires manquants : ${missing.join(", ")}.`);
+  if (missing.length > 0) errors.push(`En-têtes obligatoires manquants : ${missing.join(", ")}.`, ...diagnoseCsv(csvText));
   const headerDuplicates = header.filter((name, index) => header.indexOf(name) !== index);
   if (headerDuplicates.length > 0) errors.push(`En-têtes en double : ${[...new Set(headerDuplicates)].join(", ")}.`);
 
