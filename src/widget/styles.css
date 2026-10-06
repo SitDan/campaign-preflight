@@ -61,3 +61,5 @@ th { color: var(--muted); font-weight: 600; }
 .alert { border-left: 3px solid var(--warn); padding: 4px 8px; margin: 6px 0; background: var(--bg); }
 .error { border-left: 3px solid var(--err); padding: 4px 8px; margin: 6px 0; background: var(--bg); }
 .summary-line { display: flex; gap: 12px; flex-wrap: wrap; font-weight: 600; }
+.code-inline { font-family: ui-monospace, Menlo, monospace; user-select: all; overflow-wrap: anywhere; }
+details > summary { cursor: pointer; font-weight: 600; }

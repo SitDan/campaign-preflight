@@ -1,0 +1,4 @@
+row_id,ad_name,locale,placement,media_filename,primary_text,cta,landing_url,reference_collection,reference_offer,reference_date,reference_date_label
+AUR-FR-01,Aurore — lancement FR,fr-FR,instagram_feed,aurore-fr.jpg,La collection Aurore arrive : mailles douces et couleurs d'hiver. -20 % jusqu'au 30 novembre.,Acheter,https://example.com/fr/aurore,Aurore,-20 % sur toute la collection,2026-11-30,fin de l'offre
+AUR-UK-01,Aurore — launch UK,en-GB,instagram_feed,aurore-uk.jpg,Meet the Aurore collection: soft knits for winter. 20% off until 30 November.,Shop now,https://example.com/uk/aurore,Aurore,20% off the whole collection,2026-11-30,end of offer
+AUR-DE-01,Aurore — Launch DE,de-DE,instagram_feed,aurore-de.png,Die Aurore-Kollektion ist da: weiche Strickwaren für den Winter. 20 % Rabatt bis 30. November.,Jetzt kaufen,https://example.com/de/aurore,Aurore,20 % Rabatt auf die gesamte Kollektion,2026-11-30,Ende des Angebots

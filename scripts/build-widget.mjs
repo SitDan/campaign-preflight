@@ -13,6 +13,8 @@ const result = await build({
   legalComments: "none",
   write: false,
   define: { "process.env.NODE_ENV": '"production"' },
+  // Même contrat CSV qu'au serveur, avec la version navigateur du parseur.
+  alias: { "csv-parse/sync": "csv-parse/browser/esm/sync" },
   logLevel: "warning",
 });
 

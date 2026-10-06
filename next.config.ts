@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // Fixtures fictives servies par /api/demo/[name] (lecture disque côté fonction).
+  outputFileTracingIncludes: { "/api/demo/[name]": ["./fixtures/demo/**/*"] },
   async headers() {
     return [
       {

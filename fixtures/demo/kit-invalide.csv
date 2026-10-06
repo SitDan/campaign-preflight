@@ -1,0 +1,3 @@
+row_id,ad_name,locale,placement,media_filename,primary_text,landing_url
+AUR-FR-01,Aurore FR,fr-FR,instagram_feed,aurore-fr.jpg,Texte,https://example.com
+AUR-FR-01,Aurore FR bis,fr-FR,instagram_feed,aurore-uk.jpg,Texte,https://example.com
