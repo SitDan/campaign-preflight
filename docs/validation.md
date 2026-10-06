@@ -83,6 +83,7 @@ Compte de l'utilisateur, application ChatGPT, ajout via Plugins → Add custom M
 | Analyse avec clé synthétique | run créé (14:29), mesures affichées, revue IA « Clé OpenAI refusée » | logs + capture |
 | `ui/message` (« Expliquer dans ChatGPT ») | ChatGPT a reçu le résumé nettoyé et l'a commenté dans la conversation | capture (14:42) |
 | Sélection de fichiers dans l'iframe | `kit-invalide.csv` + 3 images choisis via les boutons du composant ; import refusé (`cta` manquant, `row_id` en double) | capture (14:42) |
+| Cache du composant par l'hôte | Après le déploiement de 14:53 (sessions de 3 h), ChatGPT affichait encore « 60 minutes ». Aucune relecture de la ressource dans les logs : le composant est mis en cache par URI | capture + logs (15:17) |
 | Invocation | Dans un nouveau chat sans plugin sélectionné, ChatGPT a proposé son mode « Work » au lieu d'appeler l'outil. Avec le plugin sélectionné via `@`, l'outil est appelé. Précisé dans le README. | capture (15:17) |
 | Retour utilisateur intégré | miniatures cassées (URL `blob:` probablement bloquées par la CSP de l'hôte) ⇒ passage en `data:` ; interface jugée peu ergonomique ⇒ parcours guidé (déployé à 14:34) | captures |
 
@@ -138,6 +139,7 @@ _Parcours complet dans ChatGPT avec une vraie clé : à compléter._
 | 15:05 | Choisir un modèle moins coûteux s'il fait aussi bien | Évaluation sur les deux modèles, puis bascule vers `gpt-6-luna` (15:10) |
 | 15:05 | Dépôt GitHub **privé** | `SitDan/campaign-preflight` créé et poussé. La CI ne démarrait pas : la facturation du compte GitHub est verrouillée (« recent account payments have failed ») |
 | 15:13 | Pas de CI payante pour ce POC, dépôt gardé privé | GitHub Actions **désactivé** sur le dépôt ; workflow conservé ; contrôles identiques lancés en local (`pnpm check`, `pnpm scan:secrets`) |
+| 15:20 | Plugin renommé « Campaign Preflight » ; pas de rafraîchissement manuel du plugin à chaque mise à jour pour 100 utilisateurs | README : nom à saisir ; composant en coquillage stable (`widget-v3`) qui charge le code depuis notre domaine (CSP `resourceDomains` = notre seule origine) ; un seul rafraîchissement requis pour passer au coquillage |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel

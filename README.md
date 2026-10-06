@@ -33,12 +33,14 @@ Hors périmètre : vidéo, carrousels, autres placements, compte ou API Meta, pu
 ### Installation dans ChatGPT
 
 1. Ouvrez **Plugins**, cliquez sur **+**, puis **Add custom MCP server**.
-2. Saisissez l'URL `https://campaign-preflight.vercel.app/mcp` et l'authentification **No authentication**.
-3. Validez l'avertissement, puis **Create as a plugin**.
+2. Saisissez le nom **`Campaign Preflight`**, l'URL `https://campaign-preflight.vercel.app/mcp` et l'authentification **No authentication**.
+3. Validez l'avertissement, puis **Create as a plugin**, et cliquez sur **Connect**.
+
+Le nom choisi est celui que l'on tape après `@`. Les exemples ci-dessous supposent « Campaign Preflight ». Avec un autre nom, remplacez-le par le vôtre.
 
 ### Parcours
 
-1. Dans une conversation, **sélectionnez le plugin** (tapez `@` puis son nom), puis demandez : « Ouvre Campaign Preflight pour vérifier mon kit Instagram Feed. » Sans cette sélection, ChatGPT peut proposer son mode « Work » (navigateur) : choisissez « Stay in Chat ».
+1. Dans une conversation, envoyez : **`@Campaign Preflight Ouvre Campaign Preflight pour vérifier mon kit Instagram Feed.`** Le `@` active le plugin dans la conversation. Sans lui, ChatGPT peut proposer son mode « Work » (navigateur) : choisissez « Stay in Chat ».
 2. Dans le composant, cliquez sur **Configurer ma clé**. Un code d'association s'affiche (usage unique, 10 minutes).
 3. **Ouvrez la page de configuration** (`/setup`). Saisissez **le code affiché dans votre composant** et votre clé API. Ne collez jamais ces valeurs dans la conversation.
 4. De retour dans ChatGPT, cliquez sur **Vérifier la connexion**. La clé est enregistrée mais pas testée : la première analyse vérifiera l'accès au modèle.
@@ -109,6 +111,12 @@ pnpm dev            # nécessite .env.development.local (voir .env.example)
 | `pnpm audit --prod` | revue des dépendances de production (aucune vulnérabilité connue au 2026-10-06) |
 | `pnpm fixtures` | régénère le kit fictif et les visuels d'évaluation |
 | `pnpm eval` | mini-évaluation **API réelle**, locale et hors CI (6 appels au plus) |
+
+### Mises à jour du composant
+
+ChatGPT met en cache le HTML du composant. Ce HTML est donc un **coquillage minimal et stable**, qui charge à chaque ouverture le code réel depuis notre domaine (`/widget/app.js`, `/widget/app.css`, revalidés par ETag).
+
+Conséquence : un déploiement est servi immédiatement à tous les utilisateurs, sans rafraîchir le plugin. Seul un changement du coquillage ou de la définition des outils (nouvelle URI `ui://…/widget-vN`) exige que ChatGPT relise les métadonnées du connecteur.
 
 ### Intégration continue
 

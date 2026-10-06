@@ -9,8 +9,8 @@ import { renderWidgetHtml } from "./widget-html";
  * L'hôte met le composant en cache par URI (constaté dans ChatGPT) : changer
  * l'URI à chaque évolution visible. Les anciennes URI restent servies (même HTML).
  */
-export const WIDGET_URI = "ui://campaign-preflight/widget-v2.html";
-const LEGACY_WIDGET_URIS = ["ui://campaign-preflight/widget-v1.html"];
+export const WIDGET_URI = "ui://campaign-preflight/widget-v3.html";
+const LEGACY_WIDGET_URIS = ["ui://campaign-preflight/widget-v1.html", "ui://campaign-preflight/widget-v2.html"];
 
 export type McpDeps = {
   appOrigin: string;
@@ -58,7 +58,8 @@ const requirementsOutput = z.object({
 
 export function registerCampaignPreflight(server: McpServer, deps: McpDeps): void {
   const uiMeta = {
-    csp: { connectDomains: [deps.appOrigin] },
+    // Notre seul domaine : appels API (connect) et chargement du code du composant (resource).
+    csp: { connectDomains: [deps.appOrigin], resourceDomains: [deps.appOrigin] },
     prefersBorder: true,
     ...(deps.widgetDomain ? { domain: deps.widgetDomain } : {}),
   };

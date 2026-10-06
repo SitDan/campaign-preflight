@@ -59,7 +59,7 @@ describe("MCP (initialize / list / call / resource)", () => {
       expect(tool.outputSchema).toBeTruthy();
     }
     const open = tools.find((tool) => tool.name === "open_campaign_preflight");
-    expect((open?._meta as { ui?: { resourceUri?: string } })?.ui?.resourceUri).toBe("ui://campaign-preflight/widget-v2.html");
+    expect((open?._meta as { ui?: { resourceUri?: string } })?.ui?.resourceUri).toBe("ui://campaign-preflight/widget-v3.html");
 
     const requirements = await client.callTool({ name: "get_meta_requirements", arguments: {} });
     const structured = requirements.structuredContent as { metaRules: Array<{ verified: boolean; sourceUrl: string }>; pocLimits: unknown[]; coverage: { metaTechnicalComplete: boolean } };
@@ -72,12 +72,34 @@ describe("MCP (initialize / list / call / resource)", () => {
 
     const legacy = await client.readResource({ uri: "ui://campaign-preflight/widget-v1.html" });
     expect((legacy.contents[0] as { text: string }).text).toContain("Campaign Preflight");
-    const resource = await client.readResource({ uri: "ui://campaign-preflight/widget-v2.html" });
+    const resource = await client.readResource({ uri: "ui://campaign-preflight/widget-v3.html" });
     const content = resource.contents[0] as { mimeType: string; text: string; _meta?: { ui?: { csp?: { connectDomains?: string[] } } } };
     expect(content.mimeType).toBe("text/html;profile=mcp-app");
     expect(content._meta?.ui?.csp?.connectDomains).toEqual(["https://campaign-preflight.example"]);
+    expect((content._meta?.ui?.csp as { resourceDomains?: string[] })?.resourceDomains).toEqual(["https://campaign-preflight.example"]);
+    expect(content.text).toContain('<script src="https://campaign-preflight.example/widget/app.js">');
     expect(content.text).toContain('"apiBase":"https://campaign-preflight.example"');
     expect(content.text).not.toMatch(/cps_[A-Za-z0-9_-]{22}\.|sk-[A-Za-z0-9]{8}/);
     await client.close();
+  });
+});
+
+describe("code du composant servi depuis notre domaine", () => {
+  it("app.js / app.css : dernière version, revalidation par ETag (304)", async () => {
+    vi.resetModules();
+    const js = await import("@/app/widget/app.js/route");
+    const css = await import("@/app/widget/app.css/route");
+    const first = await js.GET(new Request("https://x/widget/app.js"));
+    expect(first.status).toBe(200);
+    expect(first.headers.get("content-type")).toContain("text/javascript");
+    expect(first.headers.get("cache-control")).toContain("must-revalidate");
+    const body = await first.text();
+    expect(body).toContain("window.__cpLoaded=true");
+    expect(body).not.toMatch(/cps_[A-Za-z0-9_-]{22}\.|sk-[A-Za-z0-9]{8}/);
+    const etag = first.headers.get("etag")!;
+    const again = await js.GET(new Request("https://x/widget/app.js", { headers: { "if-none-match": etag } }));
+    expect(again.status).toBe(304);
+    const style = await css.GET(new Request("https://x/widget/app.css"));
+    expect(style.headers.get("content-type")).toContain("text/css");
   });
 });
