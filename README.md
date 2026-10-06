@@ -64,6 +64,7 @@ Le dossier `fixtures/demo/` contient la marque fictive « Maison Ardoise » et s
 | `kit.csv` | 3 annonces valides : FR **correcte**, UK avec **offre contradictoire** (30 % visible contre 20 % de référence), DE avec **erreur de langue** (visuel en français) |
 | `aurore-fr.jpg`, `aurore-uk.jpg`, `aurore-de.png` | visuels 1440×1800 (4:5) |
 | `kit-invalide.csv` | import refusé : colonne `cta` manquante, `row_id` en double |
+| `kit-excel-fr.csv` | même kit exporté avec « ; » (Excel FR) : refusé avec diagnostic et bouton « Demander de l'aide à ChatGPT » |
 | `modele.csv` | modèle vide avec toutes les colonnes |
 
 Colonnes du CSV (UTF-8, BOM accepté, séparateur virgule, en-têtes exacts) :

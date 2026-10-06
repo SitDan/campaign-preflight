@@ -1,7 +1,7 @@
 // Génère le kit fictif de démo et les visuels de la mini-évaluation.
 // Marque et collection fictives (« Maison Ardoise », « Aurore »), aucun logo tiers.
 // Usage : node scripts/make-fixtures.mjs
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import sharp from "sharp";
 
 const esc = (value) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -119,4 +119,7 @@ await writeFile(
   ].join("\r\n") + "\r\n",
 );
 await writeFile("fixtures/demo/modele.csv", `${HEADER}\r\n`);
+// Variante « export Excel FR » (séparateur ;) : refusée avec un diagnostic actionnable.
+const kit = await readFile("fixtures/demo/kit.csv", "utf8");
+await writeFile("fixtures/demo/kit-excel-fr.csv", kit.split("\r\n").map((row) => row.replace(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/g, ";")).join("\r\n"));
 console.log("CSV écrits.");
