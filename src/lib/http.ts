@@ -31,10 +31,10 @@ export function handleError(error: unknown, event: string, headers: Record<strin
  * Lecture bornée du corps : Content-Length ne suffit pas, on compte les
  * octets réellement lus et on interrompt au-delà du plafond.
  */
-export async function readBoundedBytes(request: Request, maxBytes: number): Promise<Uint8Array> {
+export async function readBoundedBytes(request: Request, maxBytes: number): Promise<Uint8Array<ArrayBuffer>> {
   const declared = Number(request.headers.get("content-length") ?? "0");
   if (Number.isFinite(declared) && declared > maxBytes) throw new ServiceError("payload_too_large");
-  if (!request.body) return new Uint8Array();
+  if (!request.body) return new Uint8Array(new ArrayBuffer(0));
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
   let total = 0;
@@ -48,7 +48,7 @@ export async function readBoundedBytes(request: Request, maxBytes: number): Prom
     }
     chunks.push(value);
   }
-  const out = new Uint8Array(total);
+  const out = new Uint8Array(new ArrayBuffer(total));
   let offset = 0;
   for (const chunk of chunks) {
     out.set(chunk, offset);
