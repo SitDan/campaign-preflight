@@ -153,6 +153,8 @@ _Constats affichés à l'utilisateur lors de ce parcours : capture non fournie._
   - les points à confirmer (dates sans année) ;
   - la proposition de rédiger le message pour l'équipe créative.
 - **Correction mineure** : la sortie de l'outil d'ouverture mentionne désormais les deux choix de clé (démonstration ou clé personnelle). ChatGPT avait paraphrasé « ta propre clé » alors que la clé de démo était utilisée.
+- **Cohérence de la synthèse (16:47)** : dans un premier passage, ChatGPT annonçait « kit globalement propre » avant de lister des problèmes, parce que le résumé commençait par « 0 erreur technique ». Le résumé commence désormais par le verdict par annonce, selon la même logique que le composant.
+  - Nouveau passage : « Le kit n'est pas encore prêt à partir au media buyer : 2 annonces sur 3 sont à vérifier/corriger », puis UK offre, DE langue, FR rien à signaler.
 
 ### Clé de démonstration en production (16:17–16:19), kit d'exemple
 
@@ -210,7 +212,11 @@ Départ du compteur : 13:28:37 CEST. Les durées incluent les attentes d'accès,
 | Retours UX (chargement par annonce, langage grand public, CTA e-mail de corrections), kits de 10, README simplifié | 15:30 | 15:50 | Déployés sans rafraîchir le plugin |
 | Vérifications finales, arrêt du banc local, **gel du périmètre** | 15:50 | 15:52 | `pnpm check` et scan verts, dépôt synchronisé |
 
-**Temps réel de développement : environ 2 h 24** (13:28 → 15:52), attentes d'accès et itérations incluses. Le test final complet de l'utilisateur, après réinstallation du plugin, reste à faire avant l'envoi.
+**Temps réel de développement :**
+- environ 2 h 24 jusqu'au gel initial (13:28 → 15:52) ;
+- puis itérations de remise jusqu'à 16:47, soit **environ 3 h 20 au total**, attentes d'accès incluses. Ces itérations comprennent la relecture de la consigne d'origine, le dépôt public, la clé de démonstration, la correction de la consigne de l'IA et les interactions avec ChatGPT.
+
+Le test final complet dans ChatGPT a été fait par l'utilisateur à 16:47.
 
 ## 8. Coûts observés
 
