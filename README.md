@@ -116,7 +116,13 @@ pnpm dev            # nécessite .env.development.local (voir .env.example)
 
 ChatGPT met en cache le HTML du composant. Ce HTML est donc un **coquillage minimal et stable**, qui charge à chaque ouverture le code réel depuis notre domaine (`/widget/app.js`, `/widget/app.css`, revalidés par ETag).
 
-Conséquence : un déploiement est servi immédiatement à tous les utilisateurs, sans rafraîchir le plugin. Seul un changement du coquillage ou de la définition des outils (nouvelle URI `ui://…/widget-vN`) exige que ChatGPT relise les métadonnées du connecteur.
+Conséquence : un déploiement est servi immédiatement à tous les utilisateurs, sans rafraîchir le plugin. Seul un changement du coquillage ou de la définition des outils (nouvelle URI `ui://…/widget-vN`) exige que chaque utilisateur rafraîchisse le plugin.
+
+La documentation OpenAI, lue le 2026-10-06, ne prévoit pas de purge automatique pour un serveur MCP personnalisé :
+- « Treat the resource URI as a cache key… publish a new URI and update every tool that references it » (guide *ChatGPT UI*) ;
+- « Refresh the plugin connection after each change to the MCP server (tools, metadata, and related configuration)… from the detail page at chatgpt.com/plugins » (*App quickstart*).
+
+On garde donc des outils et des schémas rétrocompatibles, et le code du composant est chargé depuis notre domaine, déclaré dans `resourceDomains`.
 
 ### Intégration continue
 
