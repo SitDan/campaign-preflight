@@ -68,7 +68,7 @@ URL stable : `https://campaign-preflight.vercel.app` (MCP : `/mcp`). Node 24, r�
 
 ## 4. ChatGPT (hôte réel)
 
-Compte de l'utilisateur, application ChatGPT, ajout via Plugins → Add custom MCP server sans authentification. Plugin créé sous le nom « Test datawords », en version 1.0.0, ce qui correspond à notre `serverInfo`.
+Compte de l'utilisateur, application ChatGPT, ajout via Plugins → Add custom MCP server sans authentification. Plugin créé sous un nom de test, en version 1.0.0, ce qui correspond à notre `serverInfo`.
 
 | Preuve | Résultat | Source |
 |---|---|---|
