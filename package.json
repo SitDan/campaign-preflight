@@ -17,7 +17,8 @@
     "test": "pnpm build:widget && vitest run",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "eval": "vitest run --config vitest.eval.config.ts",
-    "fixtures": "node scripts/make-fixtures.mjs"
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "scan:secrets": "node scripts/scan-secrets.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/core": "2.3.1",
