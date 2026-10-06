@@ -236,7 +236,7 @@ async function exportCsv() {
   state.exportText = downloaded ? "" : result.data;
   state.exportNote = downloaded
     ? "Téléchargement demandé à l'hôte."
-    : "Téléchargement indisponible dans cet hôte : sélectionnez tout le texte ci-dessous et enregistrez-le dans un fichier .csv (UTF-8).";
+    : `Téléchargement non proposé par cet hôte : CSV intégral ci-dessous (${(new TextEncoder().encode(result.data).byteLength / 1024).toFixed(1).replace(".", ",")} Kio, limite 256 Kio). Sélectionnez tout, copiez, puis enregistrez dans un fichier .csv (UTF-8).`;
   setBusy(false);
 }
 
@@ -458,6 +458,13 @@ function rowCard(row: ReportRow) {
   );
 }
 
+/** Texte sélectionnable sans API presse-papiers (bloquée dans l'iframe de l'hôte). */
+function selectableText(text: string, className: string) {
+  if (!text) return [];
+  const area = h("textarea", { className, readonly: true, rows: 8 }, text);
+  return [area, h("div", { className: "actions" }, h("button", { type: "button", onclick: () => area.select() }, "Tout sélectionner"))];
+}
+
 function reportSection() {
   const report = state.report;
   if (!report) return null;
@@ -490,8 +497,8 @@ function reportSection() {
         h("button", { type: "button", onclick: finish, disabled: state.busy }, "Terminer et supprimer"),
       ),
       state.exportNote ? h("p", { className: "muted" }, state.exportNote) : null,
-      state.exportText ? h("textarea", { className: "export", readonly: true, rows: 8 }, state.exportText) : null,
-      state.summaryText ? h("textarea", { className: "summary", readonly: true, rows: 8 }, state.summaryText) : null,
+      ...selectableText(state.exportText, "export"),
+      ...selectableText(state.summaryText, "summary"),
     ),
     ...report.rows.map(rowCard),
   );
