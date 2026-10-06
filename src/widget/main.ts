@@ -285,11 +285,19 @@ async function analyze() {
   }
   state.run = null;
   const shared = state.report ? await shareWithModel(modelContextText(state.report)) : false;
+  // Synthèse automatique, annoncée avant le lancement : un court message, les résultats sont dans le contexte.
+  const asked = shared
+    ? await sendChatMessage("Présente-moi la synthèse de cette vérification Campaign Preflight : ce qui est à corriger en priorité, ce qui est à confirmer, puis propose de rédiger le message pour l'équipe créative.")
+    : state.report
+      ? await sendChatMessage(`${modelContextText(state.report)}\n\nPrésente-moi la synthèse de cette vérification : ce qui est à corriger en priorité, ce qui est à confirmer.`)
+      : false;
   setBusy(
     false,
-    shared
-      ? "Vérification terminée. ChatGPT connaît maintenant le résumé des résultats (sans clé ni image) : posez-lui vos questions dans la conversation, par exemple « Pourquoi l'annonce UK est-elle à corriger ? »."
-      : "Vérification terminée. Pour en discuter avec ChatGPT, utilisez le bouton « Rédiger l'e-mail » ci-dessous.",
+    asked
+      ? "Vérification terminée. ChatGPT présente la synthèse juste sous ce composant ; vous pouvez lui poser vos questions dans la conversation."
+      : shared
+        ? "Vérification terminée. ChatGPT connaît le résumé des résultats (sans clé ni image) : posez-lui vos questions dans la conversation."
+        : "Vérification terminée. Pour en discuter avec ChatGPT, utilisez le bouton « Rédiger l'e-mail » ci-dessous.",
   );
 }
 
@@ -336,6 +344,14 @@ async function downloadTemplate() {
   state.exportText = ok ? "" : CSV_TEMPLATE;
   state.exportNote = ok ? "Modèle demandé à ChatGPT." : "Modèle CSV à copier dans un fichier .csv :";
   render();
+}
+
+/** Ratio lisible : format usuel si l'image s'en approche à 1 % près (ex. 4:5), sinon valeur décimale. */
+function ratioLabel(width: number, height: number): string {
+  const value = width / height;
+  const known: Array<[string, number]> = [["1:1", 1], ["4:5", 0.8], ["1,91:1", 1.91], ["16:9", 16 / 9], ["9:16", 9 / 16], ["2:3", 2 / 3], ["3:4", 0.75], ["4:3", 4 / 3]];
+  const match = known.find(([, target]) => Math.abs(value - target) / target <= 0.01);
+  return match ? match[0] : value.toFixed(2).replace(".", ",");
 }
 
 /** Contexte partagé avec le modèle : le résumé nettoyé, sans consigne de réponse. */
@@ -504,7 +520,7 @@ function kitStep(): HTMLElement {
           "div",
           { className: "analyze" },
           button(`Lancer la vérification (${eligible} annonce${eligible > 1 ? "s" : ""})`, analyze, "primary", eligible === 0),
-          h("p", { className: "muted small" }, `En cliquant, vous autorisez l'envoi à OpenAI d'une copie réduite de chaque visuel et de ses informations, soit ${eligible} appel(s) au maximum facturé(s) sur votre compte OpenAI. Durée : environ 5 secondes par annonce.`),
+          h("p", { className: "muted small" }, `En cliquant, vous autorisez l'envoi à OpenAI d'une copie réduite de chaque visuel et de ses informations, soit ${eligible} appel(s) au maximum facturé(s) sur votre compte OpenAI. Durée : environ 5 secondes par annonce. À la fin, ChatGPT présente la synthèse dans la conversation (résumé sans clé ni image).`),
         )
       : null,
     state.exportNote && !state.report ? h("p", { className: "small" }, state.exportNote) : null,
@@ -585,7 +601,7 @@ function reportCard(row: ReportRow) {
         "div",
         { className: "ad-body" },
         h("div", { className: "ad-title" }, row.adName || row.rowId, h("span", { className: "chip" }, row.locale)),
-        h("div", { className: "muted small" }, facts ? `${facts.format.toUpperCase()} · ${facts.width} × ${facts.height} px · ${formatBytes(facts.fileBytes)} · ratio ${(facts.width / facts.height).toFixed(3).replace(".", ",")}` : row.mediaFilename),
+        h("div", { className: "muted small" }, facts ? `${facts.format.toUpperCase()} · ${facts.width} × ${facts.height} px · ${formatBytes(facts.fileBytes)} · ratio ${ratioLabel(facts.width, facts.height)}` : row.mediaFilename),
         h("div", { className: `pill ${verdict.css}` }, verdict.label),
       ),
     ),

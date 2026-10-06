@@ -83,7 +83,8 @@ Nous ne promettons ni un chiffrement de bout en bout, ni une clé « jamais en c
 
 - **Contenu** : nom, identifiant et locale des annonces, écarts, alertes et contrôles non effectués.
 - **Jamais transmis** : clé, jeton, image, lien privé ou identifiant de session.
-- **Effet** : le modèle s'en sert pour répondre aux questions suivantes de l'utilisateur, dans **sa propre** conversation. Aucun message n'est envoyé automatiquement.
+- **Effet** : le modèle s'en sert pour répondre aux questions de l'utilisateur, dans **sa propre** conversation.
+- **Synthèse automatique** : à la fin d'une vérification, un court message annoncé sous le bouton « Lancer la vérification » demande à ChatGPT de présenter la synthèse. Rien n'est envoyé à un tiers.
 
 ## Journalisation
 

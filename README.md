@@ -33,7 +33,7 @@ Prérequis : un ChatGPT qui autorise les serveurs MCP personnalisés. Aucune cl�
 Trois prompts :
 
 1. `@Campaign Preflight Vérifie mon kit Instagram Feed avant de l'envoyer au media buyer.` : l'app s'ouvre ; clé de démonstration, kit d'exemple, vérification.
-2. Une fois la vérification terminée, dans le chat : `Pourquoi l'annonce UK est-elle à corriger ? Qu'est-ce qui est certain et qu'est-ce qui est à confirmer ?` : ChatGPT répond à partir des résultats, que l'app lui partage sans clé ni image.
+2. Après la synthèse que ChatGPT présente automatiquement en fin de vérification : `Pourquoi l'annonce UK est-elle à corriger ? Qu'est-ce qui est certain et qu'est-ce qui est à confirmer ?` : ChatGPT répond à partir des résultats, que l'app lui partage sans clé ni image.
 3. `Rédige le message Slack pour l'équipe créative avec un tableau des corrections par annonce.`
 
 Sur le kit d'exemple, le résultat attendu est le suivant :
