@@ -83,6 +83,7 @@ Compte de l'utilisateur, application ChatGPT, ajout via Plugins → Add custom M
 | Analyse avec clé synthétique | run créé (14:29), mesures affichées, revue IA « Clé OpenAI refusée » | logs + capture |
 | `ui/message` (« Expliquer dans ChatGPT ») | ChatGPT a reçu le résumé nettoyé et l'a commenté dans la conversation | capture (14:42) |
 | Sélection de fichiers dans l'iframe | `kit-invalide.csv` + 3 images choisis via les boutons du composant ; import refusé (`cta` manquant, `row_id` en double) | capture (14:42) |
+| Invocation | Dans un nouveau chat sans plugin sélectionné, ChatGPT a proposé son mode « Work » au lieu d'appeler l'outil. Avec le plugin sélectionné via `@`, l'outil est appelé. Précisé dans le README. | capture (15:17) |
 | Retour utilisateur intégré | miniatures cassées (URL `blob:` probablement bloquées par la CSP de l'hôte) ⇒ passage en `data:` ; interface jugée peu ergonomique ⇒ parcours guidé (déployé à 14:34) | captures |
 
 Le téléchargement n'est pas annoncé par l'hôte : l'export passe par le repli « CSV intégral sélectionnable ». _Restent à confirmer dans ChatGPT : miniatures en `data:`, bouton d'aide CSV (déployé à 14:39, après le chargement du composant testé), parcours avec une vraie clé._

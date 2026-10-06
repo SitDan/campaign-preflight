@@ -38,7 +38,7 @@ Hors périmètre : vidéo, carrousels, autres placements, compte ou API Meta, pu
 
 ### Parcours
 
-1. Demandez : « Ouvre Campaign Preflight pour vérifier mon kit Instagram Feed. »
+1. Dans une conversation, **sélectionnez le plugin** (tapez `@` puis son nom), puis demandez : « Ouvre Campaign Preflight pour vérifier mon kit Instagram Feed. » Sans cette sélection, ChatGPT peut proposer son mode « Work » (navigateur) : choisissez « Stay in Chat ».
 2. Dans le composant, cliquez sur **Configurer ma clé**. Un code d'association s'affiche (usage unique, 10 minutes).
 3. **Ouvrez la page de configuration** (`/setup`). Saisissez **le code affiché dans votre composant** et votre clé API. Ne collez jamais ces valeurs dans la conversation.
 4. De retour dans ChatGPT, cliquez sur **Vérifier la connexion**. La clé est enregistrée mais pas testée : la première analyse vérifiera l'accès au modèle.
