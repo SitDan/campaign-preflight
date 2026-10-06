@@ -26,3 +26,4 @@ evals/out/
 .DS_Store
 *.log
 .gstack/
+.vercel
