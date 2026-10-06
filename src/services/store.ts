@@ -11,8 +11,8 @@ export type Versioned<T> = { doc: T; version: number };
 export type CasResult = "ok" | "conflict" | "missing";
 
 export interface SessionStore {
-  /** Crée la session et l'index du code d'association (échéance ≤ 10 min). */
-  create(doc: SessionDoc, code: { hash: string; expiresAt: number }): Promise<boolean>;
+  /** Crée la session et, s'il y a lieu, l'index du code d'association (échéance ≤ 10 min). */
+  create(doc: SessionDoc, code: { hash: string; expiresAt: number } | null): Promise<boolean>;
   get(sessionId: string): Promise<Versioned<SessionDoc> | null>;
   /**
    * Écrit `next` si la session existe et que sa version vaut `expectedVersion`.

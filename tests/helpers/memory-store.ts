@@ -21,11 +21,11 @@ export class MemoryStore implements SessionStore {
     return entry;
   }
 
-  async create(doc: SessionDoc, code: { hash: string; expiresAt: number }): Promise<boolean> {
+  async create(doc: SessionDoc, code: { hash: string; expiresAt: number } | null): Promise<boolean> {
     const key = `cp:s:${doc.sessionId}`;
     if (this.live(key)) return false;
     this.entries.set(key, { value: JSON.stringify(doc), version: 1, expiresAt: doc.expiresAt });
-    this.entries.set(`cp:c:${code.hash}`, { value: doc.sessionId, expiresAt: code.expiresAt });
+    if (code) this.entries.set(`cp:c:${code.hash}`, { value: doc.sessionId, expiresAt: code.expiresAt });
     return true;
   }
 

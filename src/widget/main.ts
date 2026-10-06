@@ -25,6 +25,10 @@ type KeyPhase = "intro" | "pending" | "ready";
 
 const state = {
   keyPhase: "intro" as KeyPhase,
+  keySource: "user" as "user" | "demo",
+  /** Disponibilité de la clé de démonstration (GET /api/config au démarrage). */
+  demoAvailable: false,
+  demoRuns: 2,
   code: null as string | null,
   codeExpiresAt: 0,
   expiresAt: 0,
@@ -109,14 +113,35 @@ async function setImages(files: File[]) {
 
 async function configure() {
   setBusy(true, "Création d'une session temporaire…");
-  const result = await api.createSession();
+  const result = await api.createSession("user");
   if (!result.ok) return fail(result.message);
   state.code = result.data.code;
-  state.codeExpiresAt = result.data.codeExpiresAt;
+  state.codeExpiresAt = result.data.codeExpiresAt ?? 0;
   state.expiresAt = result.data.expiresAt;
+  state.keySource = "user";
   state.keyPhase = "pending";
   state.setupFallback = false;
   setBusy(false);
+}
+
+/** Choix explicite de la clé de démonstration : session prête, aucune saisie. */
+async function useDemoKey() {
+  setBusy(true, "Activation de la clé de démonstration…");
+  const result = await api.createSession("demo");
+  if (!result.ok) return fail(result.message);
+  state.code = null;
+  state.expiresAt = result.data.expiresAt;
+  state.keySource = "demo";
+  state.keyPhase = "ready";
+  setBusy(false, `Clé de démonstration active : ${state.demoRuns} vérifications possibles. Vous pouvez ajouter vos annonces.`);
+}
+
+async function loadPublicConfig() {
+  const result = await api.getConfig();
+  if (result.ok) {
+    state.demoAvailable = result.data.demoKeyAvailable;
+    state.demoRuns = result.data.limits.demoRunsPerSession;
+  }
 }
 
 async function openSetup() {
@@ -155,6 +180,7 @@ async function finish() {
   forgetSession();
   resetKit();
   state.keyPhase = "intro";
+  state.keySource = "user";
   state.code = null;
   state.busy = false;
   state.notice =
@@ -363,7 +389,9 @@ function step(index: number, title: string, status: StepStatus, summary: Node | 
 
 function keyStep(): HTMLElement {
   if (state.keyPhase === "ready") {
-    return step(1, "Compte OpenAI connecté", "done", h("span", {}, `Valable jusqu'à ${time(state.expiresAt)} · `, button("Terminer et supprimer mes données", finish, "link")), null);
+    const label = state.keySource === "demo" ? "Clé de démonstration active" : "Compte OpenAI connecté";
+    const detail = state.keySource === "demo" ? `${state.demoRuns} vérifications, jusqu'à ${time(state.expiresAt)} · ` : `Valable jusqu'à ${time(state.expiresAt)} · `;
+    return step(1, label, "done", h("span", {}, detail, button("Terminer et supprimer mes données", finish, "link")), null);
   }
   if (state.keyPhase === "pending") {
     return step(1, "Connecter votre compte OpenAI", "current", null, [
@@ -380,10 +408,22 @@ function keyStep(): HTMLElement {
       state.setupFallback ? h("p", { className: "small" }, "Ouverture automatique impossible : ouvrez ", h("span", { className: "mono" }, SETUP_URL), " dans votre navigateur.") : null,
     ]);
   }
-  return step(1, "Connecter votre compte OpenAI", "current", null, [
-    h("p", {}, "Campaign Preflight lit le texte de vos visuels avec l'IA d'OpenAI, en utilisant votre propre clé OpenAI : la vérification est facturée sur votre compte OpenAI (moins d'un centime par annonce), pas sur votre abonnement ChatGPT."),
-    h("p", { className: "muted small" }, `Par sécurité, la clé se saisit sur une page à part, jamais dans la conversation. Elle reste valable ${SESSION_DURATION_LABEL} (jusqu'à ${LIMITS.runsPerSession} vérifications), puis elle est effacée.`),
-    h("div", { className: "actions" }, button("Connecter mon compte OpenAI", configure, "primary")),
+  return step(1, "Choisir la clé OpenAI", "current", null, [
+    h("p", {}, "Campaign Preflight lit le texte de vos visuels avec l'IA d'OpenAI. Choisissez la clé utilisée pour cette session :"),
+    state.demoAvailable
+      ? h(
+          "div",
+          { className: "choice" },
+          button("Essayer avec la clé de démonstration", useDemoKey, "primary"),
+          h("p", { className: "muted small" }, `Offerte pour tester, sans rien configurer : ${state.demoRuns} vérifications par session, quota journalier partagé.`),
+        )
+      : null,
+    h(
+      "div",
+      { className: "choice" },
+      button("Utiliser ma propre clé OpenAI", configure, state.demoAvailable ? "secondary" : "primary"),
+      h("p", { className: "muted small" }, `Facturée sur votre compte OpenAI (moins d'un centime par annonce), pas sur votre abonnement ChatGPT. Saisie sur une page sécurisée, jamais dans la conversation ; valable ${SESSION_DURATION_LABEL} (${LIMITS.runsPerSession} vérifications), puis effacée.`),
+    ),
   ]);
 }
 
@@ -683,4 +723,5 @@ function render(): void {
 }
 
 void connectHost().then(render);
+void loadPublicConfig().then(render);
 render();

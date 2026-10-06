@@ -14,7 +14,7 @@ const CREATE = `
 if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end
 redis.call('HSET', KEYS[1], 'v', '1', 'doc', ARGV[1])
 redis.call('PEXPIREAT', KEYS[1], ARGV[2])
-redis.call('SET', KEYS[2], ARGV[3], 'PXAT', ARGV[4])
+if ARGV[5] == '1' then redis.call('SET', KEYS[2], ARGV[3], 'PXAT', ARGV[4]) end
 return 1`;
 
 const GET = `return redis.call('HMGET', KEYS[1], 'v', 'doc')`;
@@ -47,8 +47,8 @@ export function createRedisStore(config: { url: string; token: string }): Sessio
   return {
     async create(doc, code) {
       const result = await create.exec(
-        [sessionKey(doc.sessionId), codeKey(code.hash)],
-        [JSON.stringify(doc), String(doc.expiresAt), doc.sessionId, String(code.expiresAt)],
+        [sessionKey(doc.sessionId), code ? codeKey(code.hash) : sessionKey(doc.sessionId)],
+        [JSON.stringify(doc), String(doc.expiresAt), doc.sessionId, String(code?.expiresAt ?? 0), code ? "1" : "0"],
       );
       return Number(result) === 1;
     },

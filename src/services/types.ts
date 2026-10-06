@@ -33,6 +33,8 @@ export type SessionDoc = {
   createdAt: number;
   expiresAt: number;
   state: "pending" | "ready";
+  /** "demo" : clé de démonstration de l'opérateur, jamais stockée ; absent = clé de l'utilisateur. */
+  keySource?: "user" | "demo";
   keyEnvelope: EncryptedEnvelope | null;
   readyAt: number | null;
   counters: { runs: number; aiAttempts: number };

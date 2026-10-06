@@ -7,8 +7,18 @@ import type { Report } from "@/domain/report";
  */
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; status: number; code: string; message: string; details?: Record<string, unknown> };
 
-export type SessionCreated = { code: string; expiresAt: number; codeExpiresAt: number };
-export type SessionStatus = { state: "pending" | "ready"; expiresAt: number; codeActive: boolean; runsUsed: number; runsLimit: number; aiAttemptsUsed: number; aiAttemptsLimit: number };
+export type SessionCreated = { code: string | null; expiresAt: number; codeExpiresAt: number | null; keySource: "user" | "demo" };
+export type SessionStatus = {
+  state: "pending" | "ready";
+  keySource: "user" | "demo";
+  expiresAt: number;
+  codeActive: boolean;
+  runsUsed: number;
+  runsLimit: number;
+  aiAttemptsUsed: number;
+  aiAttemptsLimit: number;
+};
+export type PublicConfig = { demoKeyAvailable: boolean; limits: { maxRowsPerKit: number; runsPerSession: number; demoRunsPerSession: number } };
 
 let bearer: string | null = null;
 
@@ -47,12 +57,17 @@ async function call<T>(apiBase: string, path: string, init: RequestInit & { auth
 
 export function createApi(apiBase: string) {
   return {
-    async createSession(): Promise<ApiResult<SessionCreated>> {
-      const result = await call<SessionCreated & { bearer: string }>(apiBase, "/api/sessions", { method: "POST" });
+    async createSession(mode: "user" | "demo" = "user"): Promise<ApiResult<SessionCreated>> {
+      const result = await call<SessionCreated & { bearer: string }>(apiBase, "/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode }),
+      });
       if (!result.ok) return result;
       bearer = result.data.bearer;
-      return { ok: true, data: { code: result.data.code, expiresAt: result.data.expiresAt, codeExpiresAt: result.data.codeExpiresAt } };
+      return { ok: true, data: { code: result.data.code, expiresAt: result.data.expiresAt, codeExpiresAt: result.data.codeExpiresAt, keySource: result.data.keySource } };
     },
+    getConfig: () => call<PublicConfig>(apiBase, "/api/config"),
     getSession: () => call<SessionStatus>(apiBase, "/api/session", { auth: true }),
     async deleteSession(): Promise<ApiResult<{ deleted: boolean }>> {
       const result = await call<{ deleted: boolean }>(apiBase, "/api/session", { method: "DELETE", auth: true });

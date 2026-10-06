@@ -1,6 +1,7 @@
 /** Erreurs métier contrôlées : code stable + statut HTTP + message français. */
 const ERRORS = {
   demo_disabled: [503, "La démonstration est temporairement désactivée."],
+  demo_key_unavailable: [503, "La clé de démonstration n'est pas disponible : utilisez votre propre clé OpenAI."],
   rate_limited: [429, "Trop de demandes depuis cette connexion. Réessayez plus tard."],
   capacity_reached: [503, "Capacité journalière de la démonstration atteinte. Réessayez demain."],
   conflict: [409, "Opération concurrente détectée. Réessayez."],

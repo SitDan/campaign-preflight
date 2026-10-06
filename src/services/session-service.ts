@@ -21,13 +21,23 @@ export type SessionDeps = {
   appEnv: string;
   master: MasterKey;
   demoEnabled: boolean;
+  /** Clé de démonstration de l'opérateur, lue à la demande ; null si absente ou désactivée. */
+  demoKey: () => string | null;
   abuse: {
     sessionCreationsPerHourPerIp: number;
     setupSubmissionsPerHourPerIp: number;
     globalSessionsPerDay: number;
     globalAiAttemptsPerDay: number;
+    globalDemoAiAttemptsPerDay: number;
   };
 };
+
+/** Plafonds de la session selon l'origine de la clé (démonstration : plus serrés). */
+export function sessionLimits(doc: Pick<SessionDoc, "keySource">): { runs: number; aiAttempts: number } {
+  return doc.keySource === "demo"
+    ? { runs: LIMITS.demoRunsPerSession, aiAttempts: LIMITS.demoAiAttemptsPerSession }
+    : { runs: LIMITS.runsPerSession, aiAttempts: LIMITS.aiAttemptsPerSession };
+}
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -46,15 +56,18 @@ async function enforce(deps: SessionDeps, key: string, ttlMs: number, limit: num
   if (count > limit) throw new ServiceError(code);
 }
 
-export type CreatedSession = {
-  bearer: string;
-  code: string;
-  expiresAt: number;
-  codeExpiresAt: number;
-};
+export type UserSessionCreated = { bearer: string; code: string; expiresAt: number; codeExpiresAt: number; keySource: "user" };
+/** Démonstration : aucune association externe, donc ni code ni échéance de code. */
+export type DemoSessionCreated = { bearer: string; code: null; expiresAt: number; codeExpiresAt: null; keySource: "demo" };
+export type CreatedSession = UserSessionCreated | DemoSessionCreated;
 
-export async function createSession(deps: SessionDeps, context: { ip: string | null }): Promise<CreatedSession> {
+export async function createSession(deps: SessionDeps, context: { ip: string | null; mode?: "user" }): Promise<UserSessionCreated>;
+export async function createSession(deps: SessionDeps, context: { ip: string | null; mode: "demo" }): Promise<DemoSessionCreated>;
+export async function createSession(deps: SessionDeps, context: { ip: string | null; mode?: "user" | "demo" }): Promise<CreatedSession>;
+export async function createSession(deps: SessionDeps, context: { ip: string | null; mode?: "user" | "demo" }): Promise<CreatedSession> {
   if (!deps.demoEnabled) throw new ServiceError("demo_disabled");
+  const demo = context.mode === "demo";
+  if (demo && !deps.demoKey()) throw new ServiceError("demo_key_unavailable");
   const now = deps.now();
   if (context.ip) {
     await enforce(deps, `ip:sess:${sha256Hex(context.ip)}:${hourBucket(now)}`, HOUR_MS, deps.abuse.sessionCreationsPerHourPerIp, "rate_limited");
@@ -70,20 +83,24 @@ export async function createSession(deps: SessionDeps, context: { ip: string | n
     schema: 1,
     sessionId,
     bearerHash: sha256Hex(secret),
-    codeHash: sha256Hex(code),
-    codeExpiresAt,
+    // Démonstration : prête immédiatement, sans code ni clé stockée (la clé reste côté serveur).
+    codeHash: demo ? null : sha256Hex(code),
+    codeExpiresAt: demo ? now : codeExpiresAt,
     createdAt: now,
     expiresAt,
-    state: "pending",
+    state: demo ? "ready" : "pending",
+    keySource: demo ? "demo" : "user",
     keyEnvelope: null,
-    readyAt: null,
+    readyAt: demo ? now : null,
     counters: { runs: 0, aiAttempts: 0 },
     activeOperation: null,
     runs: [],
   };
-  const created = await deps.store.create(doc, { hash: doc.codeHash as string, expiresAt: codeExpiresAt });
+  const created = await deps.store.create(doc, demo ? null : { hash: doc.codeHash as string, expiresAt: codeExpiresAt });
   if (!created) throw new ServiceError("conflict");
-  return { bearer: formatBearer(sessionId, secret), code: displayCode(code), expiresAt, codeExpiresAt };
+  return demo
+    ? { bearer: formatBearer(sessionId, secret), code: null, expiresAt, codeExpiresAt: null, keySource: "demo" }
+    : { bearer: formatBearer(sessionId, secret), code: displayCode(code), expiresAt, codeExpiresAt, keySource: "user" };
 }
 
 /**
@@ -131,6 +148,7 @@ export async function authorize(deps: SessionDeps, token: string | null): Promis
 
 export type SessionStatus = {
   state: "pending" | "ready";
+  keySource: "user" | "demo";
   expiresAt: number;
   codeActive: boolean;
   runsUsed: number;
@@ -140,14 +158,16 @@ export type SessionStatus = {
 };
 
 export function describeSession(doc: SessionDoc, now: number): SessionStatus {
+  const limits = sessionLimits(doc);
   return {
     state: doc.state,
+    keySource: doc.keySource ?? "user",
     expiresAt: doc.expiresAt,
     codeActive: doc.state === "pending" && now < doc.codeExpiresAt,
     runsUsed: doc.counters.runs,
-    runsLimit: LIMITS.runsPerSession,
+    runsLimit: limits.runs,
     aiAttemptsUsed: doc.counters.aiAttempts,
-    aiAttemptsLimit: LIMITS.aiAttemptsPerSession,
+    aiAttemptsLimit: limits.aiAttempts,
   };
 }
 
@@ -162,14 +182,22 @@ export async function deleteSession(deps: SessionDeps, token: string | null): Pr
   await deps.store.delete(doc.sessionId, doc.codeHash);
 }
 
-/** Déchiffre la clé de la session pour UN appel ; à ne jamais conserver. */
+/** Clé pour UN appel (déchiffrée, ou clé de démonstration lue côté serveur) ; à ne jamais conserver. */
 export function readSessionKey(deps: SessionDeps, doc: SessionDoc): string {
+  if (doc.state === "ready" && doc.keySource === "demo") {
+    const key = deps.demoKey();
+    if (!key) throw new ServiceError("demo_key_unavailable");
+    return key;
+  }
   if (doc.state !== "ready" || !doc.keyEnvelope) throw new ServiceError("session_not_ready");
   return decryptSecret(doc.keyEnvelope, { appEnv: deps.appEnv, sessionId: doc.sessionId, expiresAt: doc.expiresAt }, deps.master);
 }
 
-/** Réserve une tentative IA dans le plafond global journalier (erreurs comprises). */
-export async function reserveGlobalAiAttempt(deps: SessionDeps): Promise<void> {
+/** Réserve une tentative IA dans les plafonds globaux journaliers (erreurs comprises). */
+export async function reserveGlobalAiAttempt(deps: SessionDeps, doc?: Pick<SessionDoc, "keySource">): Promise<void> {
   const now = deps.now();
   await enforce(deps, `global:ai:${dayBucket(now)}`, DAY_MS + HOUR_MS, deps.abuse.globalAiAttemptsPerDay, "capacity_reached");
+  if (doc?.keySource === "demo") {
+    await enforce(deps, `global:ai-demo:${dayBucket(now)}`, DAY_MS + HOUR_MS, deps.abuse.globalDemoAiAttemptsPerDay, "capacity_reached");
+  }
 }

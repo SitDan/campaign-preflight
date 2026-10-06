@@ -157,6 +157,8 @@ _Constats affichés (FR rien, UK offre, DE langue) : à confirmer par la capture
 | 15:30 | Chargement visible par annonce ; interface compréhensible par des non-techniciens | Progression « annonce X sur N », carte animée, libellés grand public ; déployé à 15:33, visible sans rafraîchir le plugin grâce au coquillage v3 |
 | 15:42 | Double usage : le créatif vérifie avant l'envoi au media buyer, le media buyer avant l'implémentation dans Meta ; CTA « rédige-moi l'e-mail pour demander les corrections » | CTA adaptatif (e-mail de corrections, sinon récapitulatif), destinataire neutre, sous-titre « avant leur publication sur Meta » (déployé à 15:43) |
 | 15:47 | Kits de 10 annonces pour le POC | 10 annonces / 10 visuels par kit, 10 appels IA par validation, **5 validations** par session (50 annonces par saisie de clé ; document Redis gardé sous ~1 Mo). Écart assumé au brief §3 |
+| 16:05 | Consigne d'origine relue (test « comme un client », sans aide) ; dépôt rendu **public** ; README dans l'ordre de la consigne (client, pourquoi, choix, journée de plus) ; fiche avec « ce que l'app ne fait pas » | Mention du nom de test neutralisée avant publication ; CI gardée désactivée |
+| 16:10 | **Clé de démonstration** fournie par l'utilisateur (secret Vercel), en choix explicite et plafonné | Mode `demo` : session prête sans association, 2 validations et 20 appels par session, 100 analyses par jour ; écart assumé au cadrage initial (« pas de clé de l'auteur ») |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel

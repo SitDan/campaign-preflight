@@ -108,3 +108,5 @@ textarea.export, textarea.summary { width: 100%; font: 12px/1.4 ui-monospace, Me
 .progress-box { margin: 4px 0 12px; }
 progress { width: 100%; height: 8px; margin-top: 8px; accent-color: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; border-top-color: var(--accent); } }
+.choice { margin: 10px 0; }
+.choice p { margin: 4px 0 0; }

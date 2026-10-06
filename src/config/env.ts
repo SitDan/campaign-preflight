@@ -29,6 +29,8 @@ const publicSchema = z.object({
   ABUSE_SETUP_SUBMISSIONS_PER_HOUR_PER_IP: intFromEnv(ABUSE_DEFAULTS.setupSubmissionsPerHourPerIp),
   ABUSE_GLOBAL_SESSIONS_PER_DAY: intFromEnv(ABUSE_DEFAULTS.globalSessionsPerDay),
   ABUSE_GLOBAL_AI_ATTEMPTS_PER_DAY: intFromEnv(ABUSE_DEFAULTS.globalAiAttemptsPerDay),
+  ABUSE_GLOBAL_DEMO_AI_ATTEMPTS_PER_DAY: intFromEnv(ABUSE_DEFAULTS.globalDemoAiAttemptsPerDay),
+  DEMO_KEY_ENABLED: z.enum(["true", "false"]).default("true"),
 });
 
 export type PublicConfig = {
@@ -42,7 +44,10 @@ export type PublicConfig = {
     setupSubmissionsPerHourPerIp: number;
     globalSessionsPerDay: number;
     globalAiAttemptsPerDay: number;
+    globalDemoAiAttemptsPerDay: number;
   };
+  /** Clé de démonstration présente et autorisée (la valeur n'est jamais exposée ici). */
+  demoKeyAvailable: boolean;
 };
 
 let cachedPublic: PublicConfig | undefined;
@@ -73,7 +78,9 @@ export function getConfig(): PublicConfig {
       setupSubmissionsPerHourPerIp: env.ABUSE_SETUP_SUBMISSIONS_PER_HOUR_PER_IP,
       globalSessionsPerDay: env.ABUSE_GLOBAL_SESSIONS_PER_DAY,
       globalAiAttemptsPerDay: env.ABUSE_GLOBAL_AI_ATTEMPTS_PER_DAY,
+      globalDemoAiAttemptsPerDay: env.ABUSE_GLOBAL_DEMO_AI_ATTEMPTS_PER_DAY,
     },
+    demoKeyAvailable: env.DEMO_KEY_ENABLED === "true" && readDemoKey() !== null,
   };
   return cachedPublic;
 }
@@ -108,6 +115,15 @@ export function getServerSecrets(): ServerSecrets {
   const masterKey = Buffer.from(env.BYOK_ENCRYPTION_KEY_B64, "base64");
   if (masterKey.length !== 32) throw new ConfigError("BYOK_ENCRYPTION_KEY_B64 doit décoder 32 octets");
   return { redisUrl, redisToken, masterKey, masterKeyId: env.BYOK_ENCRYPTION_KEY_ID };
+}
+
+/**
+ * Clé de démonstration de l'opérateur (secret Vercel « sensitive »). Lue
+ * uniquement côté serveur, au moment d'un appel ; jamais stockée ni journalisée.
+ */
+export function readDemoKey(): string | null {
+  const value = process.env.OPENAI_DEMO_API_KEY?.trim();
+  return value && /^sk-[A-Za-z0-9_-]{20,}$/.test(value) ? value : null;
 }
 
 export class ConfigError extends Error {

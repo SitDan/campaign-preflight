@@ -10,7 +10,7 @@ Ce POC est une démonstration contrôlée sur **données fictives**. Il ne s'agi
 | Risque si l'URL circule | dépense et abus sur la clé de l'opérateur | nul pour l'opérateur ; chacun ne dépense que sa clé | faible |
 | Secret détenu par le service | une clé maître très exposée | une clé chiffrée, 3 h au plus, supprimable | des clés durables : coffre, rotation, suppression de compte |
 | Comptes / identité | indispensables (quotas, facturation) | aucun : la possession du code puis du bearer suffit | fournisseur d'identité, comptes, révocation |
-| Effort | environ 1 à 1,5 jour (OAuth, quotas, facturation) | réalisé dans le POC | environ 2 jours + revue de sécurité |
+| Effort | environ 1 à 1,5 jour (OAuth, quotas, facturation) | réalisé dans le POC, avec en plus une clé de démonstration plafonnée pour l'essai | environ 2 jours + revue de sécurité |
 | Friction | aucune clé à saisir | une saisie de clé par session (3 h, 5 validations de 10 annonces) | une seule connexion |
 
 Ce compromis convient à une **démonstration limitée dans le temps, sur données fictives** :
@@ -19,6 +19,20 @@ Ce compromis convient à une **démonstration limitée dans le temps, sur donné
 - l'exposition est bornée dans le temps.
 
 Prix payé : une ressaisie par session. Le brief prévoyait 60 minutes et 3 validations. Le 2026-10-06, l'utilisateur a choisi **3 heures et 10 validations** pour réduire cette friction, ce qui allonge d'autant la durée de détention de la clé chiffrée. Pour un pilote réel, la suite logique est OAuth avec un coffre de secrets, ou le financement des appels par le service avec des quotas par utilisateur. Ce choix relève du financement et de l'authentification, pas seulement de la technique.
+
+## Clé de démonstration (choix explicite, plafonné)
+
+Décidée par l'utilisateur le 2026-10-06 (16:10), pour que l'app puisse être essayée sans configuration ni clé personnelle.
+
+- **Stockage** : `OPENAI_DEMO_API_KEY` est un secret Vercel « sensitive », chiffré et illisible depuis le tableau de bord. La clé n'est lue que côté serveur, au moment d'un appel. Elle n'apparaît jamais dans Redis, le composant, les réponses, l'URL ni les logs (couvert par les tests).
+- **Usage** : c'est un **choix explicite** dans le composant (« Essayer avec la clé de démonstration »), jamais une bascule automatique depuis la clé de l'utilisateur. La session reste prête sans association externe.
+- **Plafonds** :
+  - 2 validations par session ;
+  - 20 appels IA par session ;
+  - **100 analyses par jour** pour tous les testeurs ;
+  - en plus, les plafonds globaux (5 sessions par heure et par IP, 100 sessions par jour).
+- **Coût mesuré** : environ 0,05 centime par annonce avec `gpt-6-luna`. Recommandé : un projet OpenAI dédié avec un **plafond de budget mensuel**, et la révocation de la clé après l'évaluation.
+- **Arrêt immédiat** : `DEMO_KEY_ENABLED=false`, ou la suppression de la variable, puis un redéploiement.
 
 ## Clé OpenAI de l'utilisateur (BYOK)
 

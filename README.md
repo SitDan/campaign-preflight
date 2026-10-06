@@ -1,52 +1,69 @@
 # Campaign Preflight
 
-## Problème
+## Le client
 
-Les kits d'annonces (visuels et textes, en plusieurs langues) partent souvent sur Meta avec des erreurs : mauvais format, offre ou date fausse sur le visuel, mauvaise langue, champ manquant. Elles sont repérées tard, à la main, par le media buyer ou après un refus de Meta.
+L'équipe **marketing / marchés locaux** d'une marque internationale. Dans la démo, c'est **Maison Ardoise**, une marque fictive de prêt-à-porter qui diffuse ses campagnes Instagram en France, au Royaume-Uni et en Allemagne.
 
-## Solution
+Deux profils l'utilisent :
+- **le créatif**, avant d'envoyer le kit au media buyer ;
+- **le media buyer**, avant de le mettre en ligne dans Meta.
 
-Un outil intégré à ChatGPT qui vérifie un kit (un CSV et ses visuels) en environ 5 secondes par annonce :
+## Pourquoi il l'installe
 
-- **contrôles techniques** des visuels par rapport aux règles Meta officielles, sourcées et datées ;
-- **lecture du texte des visuels par l'IA**, comparée aux informations du CSV (langue, offre, collection, date) ;
-- **résultat par annonce** (« À corriger », « À vérifier », « Rien à signaler »), puis rédaction par ChatGPT de l'e-mail de demande de corrections.
+Les kits d'annonces (visuels, textes, plusieurs langues) partent souvent avec des erreurs : mauvais format, offre ou date fausse sur le visuel, mauvaise langue, champ manquant. Elles sont repérées tard, à la main, ou après un refus de Meta.
 
-Il sert au créatif avant l'envoi au media buyer, et au media buyer avant la mise en ligne.
+Campaign Preflight vérifie le kit **dans ChatGPT**, avant publication.
 
-Le périmètre du POC couvre Instagram Feed, les images, 10 annonces par kit et 3 langues (FR, EN, DE).
+## Pourquoi ça vaut son temps
 
-L'analyse utilise la clé OpenAI de l'utilisateur et coûte moins d'un centime par annonce. La clé est chiffrée, conservée 3 h au plus et jamais saisie dans le chat.
+Pour un kit de 10 annonces, il obtient en moins d'une minute (environ 5 s par annonce, mesuré) :
 
-## Installation (2 min)
+- **à corriger** : les écarts aux règles Meta officielles (format, poids, dimensions, ratio), sourcées et datées, et les champs manquants ;
+- **à vérifier** : les différences repérées par l'IA entre le texte du visuel et ses informations (langue, offre, collection, date) ;
+- **l'e-mail de demande de corrections**, rédigé par ChatGPT et prêt à envoyer.
 
-Prérequis :
-- ChatGPT web, avec un compte qui autorise les serveurs MCP personnalisés ;
-- une clé API OpenAI avec accès à `gpt-6-luna`.
+## Installer et essayer (2 min)
 
-Étapes :
-1. ChatGPT → **Plugins** → **+** → **Add custom MCP server**.
+1. ChatGPT (web) → **Plugins** → **+** → **Add custom MCP server**.
 2. Nom `Campaign Preflight`, URL `https://campaign-preflight.vercel.app/mcp`, **No authentication** → **Create** → **Connect**.
-3. Dans un chat : `@Campaign Preflight Ouvre Campaign Preflight pour vérifier mon kit Instagram Feed.`, puis suivre les 3 étapes affichées.
+3. Dans un chat, lancer le prompt 1 ci-dessous, puis **Essayer avec la clé de démonstration** et **Essayer avec un exemple**.
 
-Le bouton « Essayer avec un exemple » charge un kit fictif. Résultat attendu :
+Prérequis : un ChatGPT qui autorise les serveurs MCP personnalisés. Aucune clé n'est nécessaire pour tester. En usage réel, chacun utilise sa propre clé OpenAI, à moins d'un centime par annonce.
 
-| Annonce | Résultat |
+Trois prompts :
+
+1. `@Campaign Preflight Vérifie mon kit Instagram Feed avant de l'envoyer au media buyer.`
+2. `@Campaign Preflight Quelles règles Meta vérifies-tu pour une image Instagram Feed, et d'où viennent-elles ?`
+3. Après « Rédiger l'e-mail de demande de corrections » : `Transforme ça en message Slack court pour l'équipe créative, avec un tableau des corrections par annonce.`
+
+Sur le kit d'exemple, le résultat attendu est le suivant :
+
+| Annonce | Résultat attendu |
 |---|---|
 | FR | rien à signaler |
-| UK | erreur d'offre |
-| DE | erreur de langue |
+| UK | offre fausse (30 % au lieu de 20 %) |
+| DE | visuel en français au lieu d'allemand |
 
-## Prochaines étapes
+## Nos choix
 
-1. **Placements** : Facebook Feed, Stories, Reels.
-2. **Vidéo**.
-3. **OAuth** : une seule connexion, sans ressaisie de clé.
-4. **Choix du modèle d'IA**, restreint à un seul modèle dans le POC.
-5. **Création automatique des campagnes dans Meta** à partir du kit validé (MCP ou API Marketing de Meta).
+- **Une app ChatGPT** : un serveur MCP et une interface dans le chat. Il n'y a pas de site à part, sauf la page sécurisée de saisie de clé.
+- **Des règles Meta officielles**, lues sur les pages Meta, citées et datées. Une règle non vérifiée n'est jamais affichée comme « conforme ».
+- **Une IA limitée à la lecture du texte des visuels**, avec ses résultats marqués « à vérifier ». Les contrôles techniques sont faits par le code.
+- **La clé OpenAI de l'utilisateur.** Elle est saisie hors du chat, chiffrée et effacée au bout de 3 h. Une clé de démonstration plafonnée permet de tester sans configuration.
+- **Le modèle `gpt-6-luna`**, choisi après une évaluation sur 6 cas annotés : même résultat que le modèle plus gros, pour un coût 18 fois plus faible.
+
+## Avec une journée de plus
+
+- **OAuth**, pour une seule connexion par utilisateur, sans ressaisie de clé.
+- **Facebook Feed et Stories**, chacun avec ses règles Meta sourcées.
+
+Ensuite :
+- la vidéo ;
+- le choix du modèle d'IA ;
+- la création automatique des campagnes dans Meta à partir du kit validé (MCP ou API Marketing).
 
 ## Technique
 
-- **Stack** : Next.js / TypeScript sur Vercel, serveur MCP avec composant MCP Apps, OpenAI (API Responses), Redis Upstash.
-- **Lancer le projet** : `pnpm install && pnpm check`.
-- **Détails** : [développement](docs/developpement.md) · [architecture](docs/architecture.md) · [sécurité](docs/security.md) · [règles Meta](docs/rules.md) · [validation et coûts](docs/validation.md).
+- **Stack** : Next.js / TypeScript sur Vercel, MCP + MCP Apps, OpenAI (API Responses), Redis Upstash.
+- **Vérification** : `pnpm install && pnpm check`, soit 79 tests.
+- **Détails** : [développement](docs/developpement.md) · [architecture](docs/architecture.md) · [sécurité](docs/security.md) · [règles Meta](docs/rules.md) · [validation et coûts](docs/validation.md) · [fiche de présentation](docs/listing.md).

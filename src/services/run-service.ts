@@ -7,7 +7,7 @@ import { parseKit, type InventoryFile } from "@/domain/kit";
 import { evaluateTechnical, type Ruleset } from "@/domain/rules";
 import type { AiErrorCode, AiReview, ManifestRow, RowState } from "@/domain/types";
 import { ServiceError } from "./errors";
-import { authorize, readSessionKey, reserveGlobalAiAttempt, type SessionDeps } from "./session-service";
+import { authorize, readSessionKey, reserveGlobalAiAttempt, sessionLimits, type SessionDeps } from "./session-service";
 import type { Versioned } from "./store";
 import type { RunDoc, SessionDoc } from "./types";
 
@@ -102,7 +102,7 @@ export function toRunView(doc: SessionDoc, run: RunDoc): RunView {
       expiresAt: doc.expiresAt,
       runsUsed: doc.counters.runs,
       aiAttemptsUsed: doc.counters.aiAttempts,
-      aiAttemptsLimit: LIMITS.aiAttemptsPerSession,
+      aiAttemptsLimit: sessionLimits(doc).aiAttempts,
     },
   };
 }
@@ -115,7 +115,7 @@ export async function createRun(deps: RunDeps, token: string | null, input: { cs
   const runId = randomUUID();
   return mutate(deps, doc.sessionId, (current, now) => {
     if (current.state !== "ready") throw new ServiceError("session_not_ready");
-    if (current.counters.runs >= LIMITS.runsPerSession) throw new ServiceError("run_limit_reached");
+    if (current.counters.runs >= sessionLimits(current).runs) throw new ServiceError("run_limit_reached");
     const run: RunDoc = {
       runId,
       createdAt: now,
@@ -261,7 +261,7 @@ export async function analyzeRow(
 
   // 3. Réservation d'une tentative IA (session, run, global) — erreurs comprises.
   try {
-    await reserveGlobalAiAttempt(deps);
+    await reserveGlobalAiAttempt(deps, doc);
   } catch {
     return finish(failedReview("budget_exhausted"));
   }
@@ -269,7 +269,7 @@ export async function analyzeRow(
     const run = findRun(current, params.runId);
     const { state } = findRow(run, params.rowId);
     if (!state.claim || state.claim.operationId !== operationId) return { next: current, result: false };
-    if (current.counters.aiAttempts >= LIMITS.aiAttemptsPerSession || run.aiAttempts >= LIMITS.aiAttemptsPerRun) {
+    if (current.counters.aiAttempts >= sessionLimits(current).aiAttempts || run.aiAttempts >= LIMITS.aiAttemptsPerRun) {
       return { next: current, result: false };
     }
     current.counters.aiAttempts += 1;

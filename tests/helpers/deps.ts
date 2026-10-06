@@ -4,6 +4,8 @@ import { MemoryStore } from "./memory-store";
 
 /** Clé canari synthétique : ne doit JAMAIS apparaître en clair hors de l'appel fournisseur. */
 export const CANARY_KEY = "sk-canary-0000SYNTHETIC0000-do-not-use-0000";
+/** Clé de démonstration synthétique (tests uniquement). */
+export const DEMO_KEY = "sk-canary-0000SYNTHETIC0000-demo-key-00000";
 
 export function makeClock(start = Date.UTC(2026, 9, 6, 12, 0, 0)) {
   let current = start;
@@ -24,7 +26,8 @@ export function makeDeps(overrides: Partial<SessionDeps> = {}) {
     appEnv: "test",
     master: { key: randomBytes(32), keyId: "k-test" },
     demoEnabled: true,
-    abuse: { sessionCreationsPerHourPerIp: 5, setupSubmissionsPerHourPerIp: 20, globalSessionsPerDay: 100, globalAiAttemptsPerDay: 200 },
+    demoKey: () => DEMO_KEY,
+    abuse: { sessionCreationsPerHourPerIp: 5, setupSubmissionsPerHourPerIp: 20, globalSessionsPerDay: 100, globalAiAttemptsPerDay: 200, globalDemoAiAttemptsPerDay: 100 },
     ...overrides,
   };
   return { deps, store, clock };

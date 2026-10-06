@@ -1,48 +1,38 @@
-# Fiche de présentation — brouillon pour examen (non soumise)
+# Fiche de présentation (annuaire des apps ChatGPT)
 
-> Brouillon interne. **Aucune soumission à l'annuaire n'est faite ni demandée.** Voir la réserve BYOK dans `docs/security.md`.
+> Prête pour examen, **non soumise**. La réserve sur la collecte de clés API est décrite dans [security.md](security.md).
 
-## Nom
+**Nom** : Campaign Preflight
 
-Campaign Preflight
+**Description en une ligne** : Vérifiez vos annonces Instagram Feed avant leur publication sur Meta : formats, règles Meta et textes des visuels.
 
-## Description courte
+## Ce que l'app fait
 
-Repérez les erreurs dans vos annonces Instagram Feed avant leur publication sur Meta : côté créatif avant l'envoi au media buyer, côté media buyer avant l'implémentation dans Meta.
+- Elle vérifie un kit d'annonces Instagram Feed (un CSV et des images JPEG/PNG, jusqu'à 10 annonces, en FR, EN et DE).
+- Elle compare chaque visuel aux règles Meta officielles (format, poids, dimensions, ratio), sourcées et datées.
+- Elle lit le texte des visuels avec l'IA et signale, comme « à vérifier », les différences avec les informations du CSV : langue, offre, collection, date.
+- Elle affiche un résultat par annonce (« À corriger », « À vérifier », « Rien à signaler ») et la liste de ce qui n'a pas pu être vérifié.
+- Elle fait rédiger par ChatGPT l'e-mail de demande de corrections, et exporte le rapport en CSV.
 
-## Description
+## Ce que l'app ne fait pas
 
-Campaign Preflight aide une équipe marketing à relire un petit kit d'annonces **Instagram Feed (images)** avant de le transmettre à son agence média. Le kit comprend un CSV imposé et jusqu'à 3 images JPEG/PNG. Le rapport présente :
+- Elle ne publie rien et ne se connecte à aucun compte Meta.
+- Elle ne corrige, ne recadre et ne traduit aucun visuel.
+- Elle ne garantit ni l'approbation par Meta, ni la conformité juridique ou publicitaire.
+- Elle ne juge ni le style ni la qualité créative.
+- Elle ne traite ni les vidéos, ni les carrousels, ni les placements autres qu'Instagram Feed.
+- Elle ne conserve ni les images, ni l'historique au-delà de la session (3 h au plus).
 
-- les **mesures techniques certaines** : format, poids, dimensions après orientation, ratio, comparés aux exigences et recommandations Meta sourcées et datées, et séparés des limites du POC ;
-- les **anomalies du kit** : champs manquants, locale ou placement hors périmètre, image absente, URL non HTTPS ;
-- les **alertes IA à confirmer** : contradictions explicites entre le texte visible de l'image et les références fournies (langue, offre, collection nommée, date contextualisée) ;
-- la liste des **contrôles non effectués**.
+## Outils exposés
 
-Le produit ne juge pas le style, ne certifie pas la conformité juridique et ne promet pas l'approbation de Meta.
+- `open_campaign_preflight` : ouvre l'interface, sans dépense ni création de session.
+- `get_meta_requirements` : renvoie les règles Meta vérifiées (avec source et date) et les limites du POC.
 
-## Fonctions
+Les deux outils sont en lecture seule.
 
-- `open_campaign_preflight` : ouvre le composant. Ne crée aucune session et n'engage aucune dépense.
-- `get_meta_requirements` : renvoie les règles publiques vérifiées (source et date) et, séparément, les limites du POC.
-- Dans le composant : configuration de la clé, sélection du kit ou kit fictif, analyse, rapport, export CSV, « Expliquer le rapport dans ChatGPT », suppression.
+## Prérequis et données
 
-## Prérequis
-
-- Un compte ChatGPT, sur le web, autorisé à ajouter un serveur MCP personnalisé. Les politiques du workspace s'appliquent.
-- Une **clé API OpenAI personnelle**, avec du crédit API et l'accès au modèle configuré (`gpt-6-luna`). La facturation API est distincte de l'abonnement ChatGPT.
-
-## Permissions et données
-
-- Aucune connexion à un compte Meta, aucune publication, aucune réécriture des créations.
-- La clé est saisie sur une page externe du service, chiffrée et conservée 3 heures au plus.
-- Les images sont traitées en mémoire. Une copie réduite et les références de sa ligne sont envoyées à OpenAI avec la clé de l'utilisateur.
-- Seuls des résultats textuels sont conservés, au plus 3 heures, avec suppression à la demande.
-
-## Limites
-
-- Instagram Feed, images statiques JPEG/PNG, 10 annonces par kit, locales fr-FR, en-GB et de-DE.
-- Les alertes IA sont des observations à confirmer, pas une lecture OCR certaine.
-- Recharger le composant impose une nouvelle session.
-- Le téléchargement de fichier dépend de l'hôte. Sans lui, le CSV intégral s'affiche en texte sélectionnable.
-- Données publiques ou fictives uniquement. Ne pas utiliser de campagnes clients.
+- Il faut un ChatGPT qui autorise les serveurs MCP personnalisés.
+- Les analyses passent par la clé OpenAI de l'utilisateur, saisie sur une page sécurisée, chiffrée et effacée au bout de 3 h. Pour tester, il existe une clé de démonstration plafonnée.
+- Les images sont traitées en mémoire. Une copie réduite et les informations de sa ligne sont envoyées à OpenAI.
+- Données publiques ou fictives uniquement.

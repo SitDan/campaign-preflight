@@ -1,5 +1,5 @@
 import { createRedisStore } from "@/adapters/redis-store";
-import { getConfig, getServerSecrets } from "@/config/env";
+import { getConfig, getServerSecrets, readDemoKey } from "@/config/env";
 import type { SessionDeps } from "@/services/session-service";
 import { inspectImage } from "@/adapters/image";
 import { createOpenAiVisionAnalyzer } from "@/adapters/openai-vision";
@@ -19,6 +19,7 @@ export function getSessionDeps(): SessionDeps {
     appEnv: config.appEnv,
     master: { key: secrets.masterKey, keyId: secrets.masterKeyId },
     demoEnabled: config.demoEnabled,
+    demoKey: () => (getConfig().demoKeyAvailable ? readDemoKey() : null),
     abuse: config.abuse,
   };
   return deps;

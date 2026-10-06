@@ -41,6 +41,9 @@ export const LIMITS = {
 
   /** Décision utilisateur du 2026-10-06 (14:53) : 3 h absolues (brief : 60 min) pour limiter les ressaisies. */
   sessionTtlMs: 3 * 60 * 60 * 1000,
+  /** Clé de démonstration de l'opérateur (décision utilisateur du 2026-10-06, 16:10) : plafonds serrés. */
+  demoRunsPerSession: 2,
+  demoAiAttemptsPerSession: 20,
   associationCodeTtlMs: 10 * 60 * 1000,
   reportMaxBytes: 256 * KIB,
 
@@ -63,6 +66,8 @@ export const ABUSE_DEFAULTS = {
   setupSubmissionsPerHourPerIp: 20,
   globalSessionsPerDay: 100,
   globalAiAttemptsPerDay: 200,
+  /** Analyses payées par la clé de démonstration, tous testeurs confondus. */
+  globalDemoAiAttemptsPerDay: 100,
 } as const;
 
 export type SupportedLocale = (typeof LIMITS.locales)[number];
