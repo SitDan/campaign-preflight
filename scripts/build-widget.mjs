@@ -12,7 +12,10 @@ const result = await build({
   minify: true,
   legalComments: "none",
   write: false,
-  define: { "process.env.NODE_ENV": '"production"' },
+  define: {
+    "process.env.NODE_ENV": '"production"',
+    __WIDGET_BUILD__: JSON.stringify(new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC"),
+  },
   // Même contrat CSV qu'au serveur, avec la version navigateur du parseur.
   alias: { "csv-parse/sync": "csv-parse/browser/esm/sync" },
   logLevel: "warning",

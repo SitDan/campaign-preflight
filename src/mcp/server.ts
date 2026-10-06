@@ -5,8 +5,12 @@ import { LIMITS } from "@/config/limits";
 import { describeCoverage, isVerified, type Ruleset } from "@/domain/rules";
 import { renderWidgetHtml } from "./widget-html";
 
-/** Versionner l'URI à chaque changement incompatible du composant (cache hôte). */
-export const WIDGET_URI = "ui://campaign-preflight/widget-v1.html";
+/**
+ * L'hôte met le composant en cache par URI (constaté dans ChatGPT) : changer
+ * l'URI à chaque évolution visible. Les anciennes URI restent servies (même HTML).
+ */
+export const WIDGET_URI = "ui://campaign-preflight/widget-v2.html";
+const LEGACY_WIDGET_URIS = ["ui://campaign-preflight/widget-v1.html"];
 
 export type McpDeps = {
   appOrigin: string;
@@ -59,26 +63,21 @@ export function registerCampaignPreflight(server: McpServer, deps: McpDeps): voi
     ...(deps.widgetDomain ? { domain: deps.widgetDomain } : {}),
   };
 
-  registerAppResource(
-    server,
-    "Campaign Preflight",
-    WIDGET_URI,
-    {
-      description: "Composant de vérification d'un kit d'annonces Instagram Feed (images).",
-      mimeType: RESOURCE_MIME_TYPE,
-      _meta: { ui: uiMeta },
-    },
-    async () => ({
-      contents: [
-        {
-          uri: WIDGET_URI,
-          mimeType: RESOURCE_MIME_TYPE,
-          text: renderWidgetHtml({ apiBase: deps.appOrigin }),
-          _meta: { ui: uiMeta },
-        },
-      ],
-    }),
-  );
+  for (const uri of [WIDGET_URI, ...LEGACY_WIDGET_URIS]) {
+    registerAppResource(
+      server,
+      uri === WIDGET_URI ? "Campaign Preflight" : `Campaign Preflight (${uri.split("/").pop()})`,
+      uri,
+      {
+        description: "Composant de vérification d'un kit d'annonces Instagram Feed (images).",
+        mimeType: RESOURCE_MIME_TYPE,
+        _meta: { ui: uiMeta },
+      },
+      async () => ({
+        contents: [{ uri, mimeType: RESOURCE_MIME_TYPE, text: renderWidgetHtml({ apiBase: deps.appOrigin }), _meta: { ui: uiMeta } }],
+      }),
+    );
+  }
 
   registerAppTool(
     server,

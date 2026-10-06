@@ -59,7 +59,7 @@ describe("MCP (initialize / list / call / resource)", () => {
       expect(tool.outputSchema).toBeTruthy();
     }
     const open = tools.find((tool) => tool.name === "open_campaign_preflight");
-    expect((open?._meta as { ui?: { resourceUri?: string } })?.ui?.resourceUri).toBe("ui://campaign-preflight/widget-v1.html");
+    expect((open?._meta as { ui?: { resourceUri?: string } })?.ui?.resourceUri).toBe("ui://campaign-preflight/widget-v2.html");
 
     const requirements = await client.callTool({ name: "get_meta_requirements", arguments: {} });
     const structured = requirements.structuredContent as { metaRules: Array<{ verified: boolean; sourceUrl: string }>; pocLimits: unknown[]; coverage: { metaTechnicalComplete: boolean } };
@@ -70,7 +70,9 @@ describe("MCP (initialize / list / call / resource)", () => {
     const opened = await client.callTool({ name: "open_campaign_preflight", arguments: {} });
     expect(JSON.stringify(opened)).not.toMatch(/cps_|sk-/);
 
-    const resource = await client.readResource({ uri: "ui://campaign-preflight/widget-v1.html" });
+    const legacy = await client.readResource({ uri: "ui://campaign-preflight/widget-v1.html" });
+    expect((legacy.contents[0] as { text: string }).text).toContain("Campaign Preflight");
+    const resource = await client.readResource({ uri: "ui://campaign-preflight/widget-v2.html" });
     const content = resource.contents[0] as { mimeType: string; text: string; _meta?: { ui?: { csp?: { connectDomains?: string[] } } } };
     expect(content.mimeType).toBe("text/html;profile=mcp-app");
     expect(content._meta?.ui?.csp?.connectDomains).toEqual(["https://campaign-preflight.example"]);

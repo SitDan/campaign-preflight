@@ -8,6 +8,8 @@ import { connectHost, downloadText, hostInfo, hostTheme, openExternal, sendChatM
 
 type WidgetConfig = { apiBase: string };
 
+declare const __WIDGET_BUILD__: string;
+
 function readConfig(): WidgetConfig {
   const node = document.getElementById("cp-config");
   const parsed = JSON.parse(node?.textContent ?? "{}") as Partial<WidgetConfig>;
@@ -588,6 +590,7 @@ function diagnostics() {
     "details",
     { className: "diag muted small" },
     h("summary", {}, "Diagnostic de l'hôte"),
+    h("div", {}, `Version du composant : ${__WIDGET_BUILD__}`),
     h("div", {}, `Origine du composant : ${window.location.origin}`),
     h("div", {}, `Hôte : ${info.connected ? info.hostName : `non connecté${info.error ? ` (${info.error})` : ""}`}`),
     h("div", {}, `Capacités : liens externes ${info.openLinks ? "oui" : "non"} · téléchargement ${info.downloadFile ? "oui" : "non"} · message ${info.message ? "oui" : "non"}`),
