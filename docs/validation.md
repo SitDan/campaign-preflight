@@ -6,7 +6,7 @@ Journal daté du 2026-10-06. Heure de départ du compteur : 13:28:37 CEST.
 
 ## 1. Tests automatisés (simulé)
 
-`pnpm test` : 67 tests Vitest, sans appel modèle ni secret réel.
+`pnpm test` : 80 tests Vitest, sans appel modèle ni secret réel.
 
 | Ensemble | Fichier | Contenu |
 |---|---|---|
@@ -15,7 +15,8 @@ Journal daté du 2026-10-06. Heure de départ du compteur : 13:28:37 CEST.
 | Entrées / règles | `tests/kit-rules.test.ts` | Guillemets, BOM, doublons, champ ou fichier manquant, hors périmètre ; bornes 499/500, 599/600, ratio avec tolérance ; recommandation ≠ exigence ; source non vérifiée ⇒ `not_checked` |
 | Images réelles | `tests/image.test.ts` | JPEG/PNG, EXIF, réduction à 2 048 px, faux MIME, GIF, SVG, fichier tronqué, APNG, plafonds 2 Mio / 12 Mpx ; copie IA sans métadonnées |
 | Coût / erreurs | `tests/run-service.test.ts` | Double clic = un seul appel ; plafonds de run, de session et global ; timeout, refus, incomplet, sortie invalide ⇒ mesures conservées ; aucune relance ; suppression ou claim expiré pendant l'appel |
-| Export / rendu / MCP | `tests/report-mcp.test.ts` | Formules CSV neutralisées ; HTML conservé comme texte ; pas d'`innerHTML` dans le composant ; MCP `initialize`/`list`/`call`/`resource` via le client SDK |
+| Clé de démonstration | `tests/demo-key.test.ts` | Session prête sans code ; clé de démo jamais stockée ni renvoyée ; plafonds propres (validations, quota journalier) ; refus si la clé est indisponible ; configuration publique sans secret |
+| Export / rendu / MCP | `tests/report-mcp.test.ts` | Formules CSV neutralisées ; HTML conservé comme texte ; pas d'`innerHTML` dans le composant ; MCP `initialize`/`list`/`call`/`resource` via le client SDK ; résumé partagé commençant par le verdict par annonce |
 
 Autres contrôles : `pnpm typecheck`, `pnpm lint`, `pnpm build` et `pnpm scan:secrets` sont verts.
 
@@ -226,17 +227,19 @@ Le test final complet dans ChatGPT a été fait par l'utilisateur à 16:47.
 
 | Poste | Constat |
 |---|---|
-| OpenAI (mini-évaluation) | 12 appels, ≈ 0,048 $ (sol) + ≈ 0,0026 $ (luna), au tarif Standard lu le 2026-10-06 |
-| OpenAI (clé synthétique) | 0 $ : appels refusés en 401 |
+| OpenAI : mini-évaluations | 18 appels : ≈ 0,048 $ (`gpt-6.1-sol`, prompt v1) + ≈ 0,0026 $ (`gpt-6-luna`, v1) + ≈ 0,0024 $ (`gpt-6-luna`, v2), au tarif Standard lu le 2026-10-06 |
+| OpenAI : parcours réels | 3 analyses avec la clé de l'utilisateur, ≈ 0,0016 $ ; une quinzaine d'analyses avec la clé de démonstration (vérifications en production et essais dans ChatGPT), ≈ 0,01 $ |
+| OpenAI : clé synthétique | 0 $ : appels refusés en 401 |
+| **Total OpenAI** | **≈ 0,07 $**, soit environ 0,05 centime par annonce avec `gpt-6-luna` |
 | Vercel | projet existant sur l'équipe de l'utilisateur ; aucune option payante activée par ce POC |
 | Upstash Redis | intégration Marketplace, plan par défaut de l'intégration ; à vérifier dans le tableau de bord |
-| GitHub | dépôt privé ; Actions désactivé, donc 0 minute |
+| GitHub | dépôt public ; Actions désactivé, donc 0 minute |
 
 ## 9. Limites et suite proposée (une journée)
 
 Limites restantes :
-- **Clé** : une saisie par session (3 h, 10 validations). Un rechargement du composant impose une nouvelle session.
-- **Kit** : 3 annonces au plus, en Instagram Feed uniquement.
+- **Clé** : une saisie par session (3 h, 5 validations de 10 annonces). Un rechargement du composant impose une nouvelle session. La clé de démonstration permet d'essayer sans clé, avec 2 validations par session et 100 analyses par jour.
+- **Kit** : 10 annonces au plus, en Instagram Feed uniquement.
 - **Évaluation** : 6 cas seulement, aux textes nets ; aucun taux de fiabilité n'est revendiqué.
 - **Export** : pas de téléchargement dans ChatGPT, l'hôte ne l'annonce pas ; repli CSV sélectionnable.
 - **Accès** : non vérifié avec un second compte ChatGPT ni sur un workspace Business/Enterprise.

@@ -18,7 +18,7 @@ Ce compromis convient à une **démonstration limitée dans le temps, sur donné
 - l'utilisateur garde le contrôle de sa dépense et peut révoquer sa clé chez OpenAI ;
 - l'exposition est bornée dans le temps.
 
-Prix payé : une ressaisie par session. Le POC prévoyait initialement 60 minutes et 3 validations. Le 2026-10-06, l'utilisateur a choisi **3 heures et 10 validations** pour réduire cette friction, ce qui allonge d'autant la durée de détention de la clé chiffrée. Pour un pilote réel, la suite logique est OAuth avec un coffre de secrets, ou le financement des appels par le service avec des quotas par utilisateur. Ce choix relève du financement et de l'authentification, pas seulement de la technique.
+Prix payé : une ressaisie par session. Le POC prévoyait initialement 60 minutes et 3 validations. Le 2026-10-06, l'utilisateur a choisi **3 heures et 5 validations de 10 annonces** pour réduire cette friction, ce qui allonge d'autant la durée de détention de la clé chiffrée. Pour un pilote réel, la suite logique est OAuth avec un coffre de secrets, ou le financement des appels par le service avec des quotas par utilisateur. Ce choix relève du financement et de l'authentification, pas seulement de la technique.
 
 ## Clé de démonstration (choix explicite, plafonné)
 
