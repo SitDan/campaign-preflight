@@ -1,6 +1,6 @@
 import { LIMITS, SESSION_DURATION_LABEL } from "@/config/limits";
 import { CSV_TEMPLATE, parseKit, type ImportResult } from "@/domain/kit";
-import { AI_ERROR_MESSAGES, toSummaryText, type Report, type ReportRow } from "@/domain/report";
+import { AI_ERROR_MESSAGES, VERDICT_LABEL, rowVerdict, toSummaryText, type Report, type ReportRow, type RowVerdict } from "@/domain/report";
 import type { CheckResult } from "@/domain/rules";
 import { createApi, forgetSession, hasSession } from "./api";
 import { formatBytes, h, replace } from "./dom";
@@ -356,8 +356,7 @@ function ratioLabel(width: number, height: number): string {
 
 /** Contexte partagé avec le modèle : le résumé nettoyé, sans consigne de réponse. */
 function modelContextText(report: Report): string {
-  const summary = toSummaryText(report).replace(/\n\nLes alertes IA sont à confirmer[\s\S]*$/, "");
-  return `Résultats de la dernière vérification Campaign Preflight (contexte pour répondre aux questions de l'utilisateur) :\n${summary}\n\nLes alertes IA sont à confirmer par une personne ; les limites du POC ne sont pas des règles Meta.`;
+  return `Résultats de la dernière vérification Campaign Preflight (contexte pour répondre aux questions de l'utilisateur ; ne pas présenter le kit comme prêt s'il reste des annonces « À corriger » ou « À vérifier ») :\n${toSummaryText(report)}`;
 }
 
 /** Points à corriger, à vérifier ou vérification incomplète : l'e-mail de corrections a un sens. */
@@ -534,13 +533,11 @@ const ORIGIN_LABEL: Record<CheckResult["origin"], string> = {
   poc_limit: "Limite du POC",
 };
 
+const VERDICT_CSS: Record<RowVerdict, string> = { to_fix: "bad", to_check: "warn", incomplete: "warn", not_analyzed: "neutral", clear: "ok" };
+
 function adVerdict(row: ReportRow): { label: string; css: string } {
-  const blocking = row.kitIssues.length > 0 || row.mediaError !== null || row.technical.some((check) => check.status === "fail" && check.origin !== "meta_recommendation");
-  if (blocking) return { label: "À corriger", css: "bad" };
-  if (row.phase === "awaiting_media") return { label: "Non vérifiée", css: "neutral" };
-  if (row.phase === "interrupted" || row.phase === "unknown_outcome" || (row.ai && row.ai.status !== "completed")) return { label: "Vérification incomplète", css: "warn" };
-  if ((row.ai?.findings.length ?? 0) > 0 || row.technical.some((check) => check.status === "fail")) return { label: "À vérifier", css: "warn" };
-  return { label: "Rien à signaler", css: "ok" };
+  const verdict = rowVerdict(row);
+  return { label: VERDICT_LABEL[verdict], css: VERDICT_CSS[verdict] };
 }
 
 function checkLine(check: CheckResult) {

@@ -193,25 +193,59 @@ export function toExportCsv(report: Report): string {
 
 // ---------- Résumé partageable (sans secret, URL ni identifiant de session) ----------
 
+// ---------- Verdict par annonce (partagé par le composant et le résumé) ----------
+
+export type RowVerdict = "to_fix" | "to_check" | "incomplete" | "not_analyzed" | "clear";
+
+export const VERDICT_LABEL: Record<RowVerdict, string> = {
+  to_fix: "À corriger",
+  to_check: "À vérifier",
+  incomplete: "Vérification incomplète",
+  not_analyzed: "Non vérifiée",
+  clear: "Rien à signaler",
+};
+
+export function rowVerdict(row: ReportRow): RowVerdict {
+  const blocking = row.kitIssues.length > 0 || row.mediaError !== null || row.technical.some((check) => check.status === "fail" && check.origin !== "meta_recommendation");
+  if (blocking) return "to_fix";
+  if (row.phase === "awaiting_media") return "not_analyzed";
+  if (row.phase === "interrupted" || row.phase === "unknown_outcome" || (row.ai && row.ai.status !== "completed")) return "incomplete";
+  if ((row.ai?.findings.length ?? 0) > 0 || row.technical.some((check) => check.status === "fail")) return "to_check";
+  return "clear";
+}
+
+/**
+ * Résumé partageable : commence par le verdict par annonce (comme le composant),
+ * pour qu'aucun lecteur — humain ou modèle — ne conclue « kit propre » à tort.
+ */
 export function toSummaryText(report: Report): string {
+  const verdicts = report.rows.map(rowVerdict);
+  const count = (verdict: RowVerdict) => verdicts.filter((item) => item === verdict).length;
+  const parts = (["to_fix", "to_check", "incomplete", "not_analyzed", "clear"] as RowVerdict[])
+    .filter((verdict) => count(verdict) > 0)
+    .map((verdict) => `${count(verdict)} « ${VERDICT_LABEL[verdict]} »`);
+  const needsAction = count("to_fix") + count("to_check") + count("incomplete") + count("not_analyzed") > 0;
   const out: string[] = [
-    "Rapport Campaign Preflight (Instagram Feed, images) — à expliquer :",
-    `${report.summary.ads} annonce(s) ; erreurs techniques : ${report.summary.technicalErrors} ; écarts à des recommandations Meta : ${report.summary.recommendationGaps} ; anomalies de kit : ${report.summary.kitIssues} ; alertes IA à confirmer : ${report.summary.aiAlerts} ; revues IA non achevées : ${report.summary.aiNotCompleted}.`,
+    `Résultat de la vérification Campaign Preflight (Instagram Feed) — ${report.rows.length} annonce(s) : ${parts.join(", ")}.`,
+    needsAction
+      ? "Le kit n'est PAS prêt à être publié en l'état : les annonces « À corriger » et « À vérifier » doivent être traitées avant l'envoi."
+      : "Aucun problème repéré sur les points vérifiés.",
+    "Légende : « À corriger » = écart certain (format, règle Meta, champ manquant) ; « À vérifier » = différence repérée par l'IA entre le texte du visuel et les informations du kit (langue, offre, collection, date), à confirmer par une personne mais à traiter avant publication.",
   ];
-  for (const row of report.rows) {
-    out.push(`\n• ${row.adName} (${row.rowId}, ${row.locale})`);
-    for (const issue of row.kitIssues) out.push(`  - Anomalie de kit (${issue.field}) : ${issue.message}`);
+  for (const [index, row] of report.rows.entries()) {
+    out.push(`\n• ${row.adName} (${row.rowId}, ${row.locale}) : ${VERDICT_LABEL[verdicts[index] as RowVerdict]}`);
+    for (const issue of row.kitIssues) out.push(`  - Champ du kit (${issue.field}) : ${issue.message}`);
     if (row.mediaError) out.push(`  - Image refusée : ${row.mediaError}`);
     for (const check of row.technical.filter((item) => item.status === "fail")) {
       const kind = check.origin === "meta_requirement" ? "Exigence Meta" : check.origin === "meta_recommendation" ? "Recommandation Meta" : "Limite du POC";
-      out.push(`  - ${kind} non respectée : ${check.label} — observé ${check.observed}, attendu ${check.expected}. Action : ${check.action}`);
+      out.push(`  - ${kind} non respectée : ${check.label} — observé ${check.observed}, attendu ${check.expected}. Correction : ${check.action}`);
     }
     for (const finding of row.ai?.findings ?? []) {
-      out.push(`  - Alerte IA à confirmer (${finding.kind}) : « ${finding.observedText} » vs référence « ${finding.expected} ». ${finding.explanation} Action : ${finding.action}`);
+      out.push(`  - Différence repérée par l'IA (${finding.kind}) : « ${finding.observedText} » au lieu de « ${finding.expected} ». ${finding.explanation} Correction : ${finding.action}`);
     }
-    if (row.ai && row.ai.status !== "completed" && row.ai.errorCode) out.push(`  - Revue IA non achevée : ${AI_ERROR_MESSAGES[row.ai.errorCode]}`);
+    if (row.ai && row.ai.status !== "completed" && row.ai.errorCode) out.push(`  - Lecture des textes non effectuée : ${AI_ERROR_MESSAGES[row.ai.errorCode]}`);
     for (const item of row.ai?.notChecked ?? []) out.push(`  - Non vérifié (${item.check}) : ${item.reason}`);
   }
-  out.push("\nLes alertes IA sont à confirmer par une personne ; les limites du POC ne sont pas des règles Meta. Merci d'expliquer ces anomalies et les corrections à demander à l'agence.");
+  out.push("\nLes limites du POC ne sont pas des règles Meta.");
   return out.join("\n").slice(0, 8000);
 }

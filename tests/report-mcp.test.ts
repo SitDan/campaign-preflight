@@ -103,3 +103,21 @@ describe("code du composant servi depuis notre domaine", () => {
     expect(style.headers.get("content-type")).toContain("text/css");
   });
 });
+
+describe("résumé partageable", () => {
+  it("commence par le verdict par annonce et ne présente pas le kit comme prêt s'il reste des alertes", async () => {
+    const { toSummaryText } = await import("@/domain/report");
+    const base = { phase: "done", kitIssues: [], mediaError: null, facts: null, technical: [{ ruleId: "r", origin: "meta_requirement", label: "x", status: "pass", observed: "", expected: "", action: "", sourceUrl: null }] };
+    const report = {
+      rows: [
+        { ...base, rowId: "FR", adName: "FR", locale: "fr-FR", placement: "instagram_feed", mediaFilename: "a.jpg", ai: { status: "completed", observations: [], findings: [], notChecked: [], discarded: 0 } },
+        { ...base, rowId: "UK", adName: "UK", locale: "en-GB", placement: "instagram_feed", mediaFilename: "b.jpg", ai: { status: "completed", observations: [], findings: [{ kind: "offer_mismatch", observedText: "30% off", referenceField: "reference_offer", expected: "20% off", explanation: "e", action: "a" }], notChecked: [], discarded: 0 } },
+      ],
+    } as unknown as import("@/domain/report").Report;
+    const text = toSummaryText(report);
+    expect(text.split("\n")[0]).toContain("1 « À vérifier », 1 « Rien à signaler »");
+    expect(text).toContain("n'est PAS prêt");
+    expect(text).toContain("• UK (UK, en-GB) : À vérifier");
+    expect(text).not.toMatch(/erreurs techniques : 0/);
+  });
+});
