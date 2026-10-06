@@ -17,3 +17,8 @@ export function corsHeaders(origin: string | null, allowedOrigins: readonly stri
 export function isAllowedOrigin(origin: string | null, allowedOrigins: readonly string[]): boolean {
   return Boolean(origin && origin !== "null" && allowedOrigins.includes(origin));
 }
+
+/** Réponse de pré-vol : en-têtes CORS uniquement pour une origine autorisée. */
+export function preflight(request: Request, allowedOrigins: readonly string[]): Response {
+  return new Response(null, { status: 204, headers: corsHeaders(request.headers.get("origin"), allowedOrigins) });
+}
