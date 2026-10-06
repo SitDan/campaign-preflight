@@ -155,6 +155,7 @@ _Constats affichés (FR rien, UK offre, DE langue) : à confirmer par la capture
 | 15:13 | Pas de CI payante pour ce POC, dépôt gardé privé | GitHub Actions **désactivé** sur le dépôt ; workflow conservé ; contrôles identiques lancés en local (`pnpm check`, `pnpm scan:secrets`) |
 | 15:20 | Plugin renommé « Campaign Preflight » ; pas de rafraîchissement manuel du plugin à chaque mise à jour pour 100 utilisateurs | README : nom à saisir ; composant en coquillage stable (`widget-v3`) qui charge le code depuis notre domaine (CSP `resourceDomains` = notre seule origine) ; un seul rafraîchissement requis pour passer au coquillage |
 | 15:30 | Chargement visible par annonce ; interface compréhensible par des non-techniciens | Progression « annonce X sur N », carte animée, libellés grand public ; déployé à 15:33, visible sans rafraîchir le plugin grâce au coquillage v3 |
+| 15:42 | Double usage : le créatif vérifie avant l'envoi au media buyer, le media buyer avant l'implémentation dans Meta ; CTA « rédige-moi l'e-mail pour demander les corrections » | CTA adaptatif (e-mail de corrections, sinon récapitulatif), destinataire neutre, sous-titre « avant leur publication sur Meta » (déployé à 15:43) |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel
