@@ -11,8 +11,9 @@ export const LIMITS = {
   mediaType: "image",
   locales: ["fr-FR", "en-GB", "de-DE"] as const,
 
-  maxRowsPerKit: 3,
-  maxFilesPerKit: 3,
+  /** Décision utilisateur du 2026-10-06 (15:47) : 10 annonces / 10 visuels par kit (brief : 3 / 3). */
+  maxRowsPerKit: 10,
+  maxFilesPerKit: 10,
   csvMaxBytes: 64 * KIB,
 
   imageMaxBytes: 2 * MIB,
@@ -27,10 +28,14 @@ export const LIMITS = {
   shortFieldMaxChars: 250,
   urlMaxChars: 2_048,
 
-  /** Décision utilisateur du 2026-10-06 (14:53) : 10 validations / 30 tentatives (brief : 3 / 9). */
-  runsPerSession: 10,
-  aiAttemptsPerRun: 3,
-  aiAttemptsPerSession: 30,
+  /**
+   * Décisions utilisateur du 2026-10-06 : 14:53 (sessions longues) puis 15:47 (kits de 10).
+   * 5 validations × 10 annonces = 50 annonces par saisie de clé ; le document de session
+   * Redis reste sous ~1 Mo dans le pire cas (≈ 5 à 20 Ko par annonce). Brief : 3 / 3 / 9.
+   */
+  runsPerSession: 5,
+  aiAttemptsPerRun: 10,
+  aiAttemptsPerSession: 50,
   modelMaxOutputTokens: 2_048,
   heavyOperationsPerSession: 1,
 

@@ -41,7 +41,7 @@ Le produit ne juge pas le style, ne certifie pas la conformité juridique et ne 
 
 ## Limites
 
-- Instagram Feed, images statiques JPEG/PNG, 3 annonces, locales fr-FR, en-GB et de-DE.
+- Instagram Feed, images statiques JPEG/PNG, 10 annonces par kit, locales fr-FR, en-GB et de-DE.
 - Les alertes IA sont des observations à confirmer, pas une lecture OCR certaine.
 - Recharger le composant impose une nouvelle session.
 - Le téléchargement de fichier dépend de l'hôte. Sans lui, le CSV intégral s'affiche en texte sélectionnable.

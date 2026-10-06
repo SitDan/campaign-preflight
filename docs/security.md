@@ -11,7 +11,7 @@ Ce POC est une démonstration contrôlée sur **données fictives**. Il ne s'agi
 | Secret détenu par le service | une clé maître très exposée | une clé chiffrée, 3 h au plus, supprimable | des clés durables : coffre, rotation, suppression de compte |
 | Comptes / identité | indispensables (quotas, facturation) | aucun : la possession du code puis du bearer suffit | fournisseur d'identité, comptes, révocation |
 | Effort | environ 1 à 1,5 jour (OAuth, quotas, facturation) | réalisé dans le POC | environ 2 jours + revue de sécurité |
-| Friction | aucune clé à saisir | une saisie de clé par session (3 h, 10 validations) | une seule connexion |
+| Friction | aucune clé à saisir | une saisie de clé par session (3 h, 5 validations de 10 annonces) | une seule connexion |
 
 Ce compromis convient à une **démonstration limitée dans le temps, sur données fictives** :
 - aucun coût ni secret longue durée ne pèse sur l'opérateur ;

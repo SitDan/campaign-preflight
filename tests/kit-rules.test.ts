@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { LIMITS } from "@/config/limits";
 import { CSV_TEMPLATE, parseKit } from "@/domain/kit";
 import { INSTAGRAM_FEED_RULESET } from "@/domain/ruleset";
 import { describeCoverage, evaluateTechnical, type ImageFacts, type Ruleset } from "@/domain/rules";
@@ -41,14 +42,16 @@ describe("CSV imposé", () => {
   it("refuse : CSV mal formé, en-tête manquant, > 3 lignes, row_id dupliqué, basenames dupliqués", () => {
     expect(parseKit(`${HEADER}\n"non fermé,`, files()).ok).toBe(false);
     expect(parseKit(HEADER.replace("cta,", "") + "\n", files()).ok).toBe(false);
-    const four = [HEADER, line({ row_id: "1" }), line({ row_id: "2" }), line({ row_id: "3" }), line({ row_id: "4" })].join("\n");
-    expect(parseKit(four, files("a1.jpg")).ok).toBe(false);
+    const tooMany = [HEADER, ...Array.from({ length: LIMITS.maxRowsPerKit + 1 }, (_, i) => line({ row_id: String(i) }))].join("\n");
+    expect(parseKit(tooMany, files("a1.jpg")).ok).toBe(false);
+    const max = [HEADER, ...Array.from({ length: LIMITS.maxRowsPerKit }, (_, i) => line({ row_id: String(i) }))].join("\n");
+    expect(parseKit(max, files("a1.jpg")).ok).toBe(true);
     const dup = [HEADER, line(), line()].join("\n");
     const dupResult = parseKit(dup, files("a1.jpg"));
     expect(dupResult.ok).toBe(false);
     if (!dupResult.ok) expect(dupResult.errors.join(" ")).toContain("row_id en double");
     expect(parseKit([HEADER, line()].join("\n"), files("a1.jpg", "a1.jpg")).ok).toBe(false);
-    expect(parseKit([HEADER, line()].join("\n"), files("a.jpg", "b.jpg", "c.jpg", "d.jpg")).ok).toBe(false);
+    expect(parseKit([HEADER, line()].join("\n"), files(...Array.from({ length: LIMITS.maxFilesPerKit + 1 }, (_, i) => `f${i}.jpg`))).ok).toBe(false);
     expect(parseKit(`row_id;ad_name\nA;B`, files()).ok).toBe(false);
   });
 

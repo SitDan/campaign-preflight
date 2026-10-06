@@ -36,6 +36,18 @@ Seules deux frontières sont injectées : `SessionStore` et `VisionAnalyzer`. Le
 - Le composant n'utilise que des API documentées : `App` de `@modelcontextprotocol/ext-apps` (`openLink`, `downloadFile`, `sendMessage`), avec repli sur `window.openai.openExternal`.
 - Le MCP public n'accède à aucun rapport, image ou secret. Les traitements privés passent par HTTPS avec le bearer de session.
 
+## Mises à jour du composant et cache de ChatGPT
+
+ChatGPT met en cache le HTML du composant, et l'URI de la ressource lui sert de clé de cache. La doc OpenAI le dit : « publish a new URI » et « Refresh the plugin connection after each change to the MCP server ».
+
+Le HTML servi (`widget-v3`) est donc un **coquillage stable** de moins de 1 Ko. À chaque ouverture, il charge `/widget/app.js` et `/widget/app.css` depuis notre domaine, revalidés par ETag et déclarés dans `_meta.ui.csp.resourceDomains`.
+
+Conséquences :
+- un déploiement de l'interface atteint immédiatement tous les utilisateurs ;
+- seul un changement du coquillage ou des outils exige un « Actualiser les outils » par utilisateur ;
+- les outils et les schémas restent rétrocompatibles ;
+- les anciennes URI (`widget-v1`, `widget-v2`) restent servies.
+
 ## Session éphémère (BYOK)
 
 1. Le composant crée la session : `POST /api/sessions` renvoie le bearer (32 octets) et le code d'association (10 octets, base32 sur 16 caractères). Ils ne sont transmis qu'une seule fois. Redis n'en conserve que les empreintes SHA-256.
