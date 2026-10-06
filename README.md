@@ -73,15 +73,17 @@ Colonnes du CSV :
 1. **Placements supplémentaires** : Facebook Feed, puis Stories et Reels, chacun avec ses règles Meta sourcées et ses tests.
 2. **Vidéo** sur un premier placement : métadonnées (durée, format, poids), extraction de quelques images, stockage privé et envoi direct.
 3. **OAuth** (par exemple Descope MCP Auth, Marketplace Vercel) : une seule connexion par utilisateur, clé conservée dans un coffre, plus de ressaisie.
+4. **Choix du modèle d'IA** : volontairement restreint à un seul modèle (`gpt-6-luna`) dans le POC. L'utilisateur choisirait parmi des modèles qualifiés par la mini-évaluation, avec un coût et une qualité affichés. Le choix resterait explicite, sans bascule automatique.
 
 **Pistes à valider ensemble avant toute implémentation :**
-4. Kits plus volumineux (au-delà de 10 annonces), avec traitement par lots.
-5. Contrôles de texte supplémentaires : langue du texte principal par rapport à la locale, longueur des textes, libellé du CTA.
-6. Historique des vérifications, pour comparer un kit avant et après correction.
-7. Veille des spécifications Meta : alerte quand une page source change, mise à jour versionnée des règles.
-8. Évaluation élargie sur des cas réels anonymisés : textes fins, fonds chargés, offres ambiguës.
-9. Second fournisseur d'IA, qualifié par la même évaluation.
-10. Interface en anglais pour les équipes internationales.
+
+5. Kits plus volumineux (au-delà de 10 annonces), avec traitement par lots.
+6. Contrôles de texte supplémentaires : langue du texte principal par rapport à la locale, longueur des textes, libellé du CTA.
+7. Historique des vérifications, pour comparer un kit avant et après correction.
+8. Veille des spécifications Meta : alerte quand une page source change, mise à jour versionnée des règles.
+9. Évaluation élargie sur des cas réels anonymisés : textes fins, fonds chargés, offres ambiguës.
+10. Second fournisseur d'IA, qualifié par la même évaluation.
+11. Interface en anglais pour les équipes internationales.
 
 ## Développement
 
