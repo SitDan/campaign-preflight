@@ -533,7 +533,7 @@ function checkLine(check: CheckResult) {
     { className: "check" },
     h("div", {}, h("strong", {}, check.label), h("span", { className: "muted small" }, ` · ${ORIGIN_LABEL[check.origin]}`)),
     h("div", { className: "small" }, `Observé : ${check.observed} — attendu : ${check.expected}`),
-    check.status !== "pass" ? h("div", { className: "small" }, check.status === "not_checked" ? `Non vérifié : ${check.reason ?? ""}` : `À demander : ${check.action}`) : null,
+    check.status !== "pass" ? h("div", { className: "small" }, check.status === "not_checked" ? `Non vérifié : ${check.reason ?? ""}` : `Correction à demander : ${check.action}`) : null,
     check.sourceUrl ? h("div", { className: "muted small mono" }, check.sourceUrl) : null,
   );
 }
@@ -611,7 +611,7 @@ function reportCard(row: ReportRow) {
               h("div", {}, h("span", { className: "chip" }, FINDING_LABEL[finding.kind] ?? finding.kind), " ", h("strong", {}, `Sur le visuel : « ${finding.observedText} »`)),
               h("div", { className: "small" }, `Attendu : ${finding.expected}`),
               h("div", { className: "small" }, finding.explanation),
-              h("div", { className: "small" }, `À demander à l'agence : ${finding.action}`),
+              h("div", { className: "small" }, `Correction à demander : ${finding.action}`),
             ),
           ),
         )
