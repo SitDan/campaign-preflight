@@ -45,6 +45,8 @@ const state = {
   summaryText: "",
   diagnostics: "",
   kitEditing: true,
+  /** Progression de la vérification en cours (une annonce à la fois). */
+  run: null as null | { current: string | null; waiting: Set<string>; total: number; done: number },
 };
 
 // ---------- utilitaires ----------
@@ -218,7 +220,7 @@ async function analyze() {
   state.exportNote = "";
   state.summaryText = "";
   state.kitEditing = false;
-  setBusy(true, "Envoi du CSV…");
+  setBusy(true, "Préparation de la vérification…");
   const created = await api.createRun(state.csvText, [...state.images.values()].map((file) => ({ name: file.name, size: file.size })));
   if (!created.ok) {
     state.kitEditing = true;
@@ -227,21 +229,27 @@ async function analyze() {
   }
   state.report = created.data;
   const pending = created.data.rows.filter((row) => row.phase === "awaiting_media");
-  for (const [index, row] of pending.entries()) {
+  state.run = { current: null, waiting: new Set(pending.map((row) => row.rowId)), total: pending.length, done: 0 };
+  for (const row of pending) {
     const file = state.images.get(row.mediaFilename);
+    state.run.waiting.delete(row.rowId);
     if (!file) continue;
-    state.notice = `Analyse ${index + 1}/${pending.length} : « ${row.adName} »…`;
+    state.run.current = row.rowId;
+    state.notice = "Analyse en cours";
     render();
     let result = await api.analyzeRow(created.data.runId, row.rowId, file);
     if (!result.ok && result.code === "operation_in_progress") {
       await new Promise((resolve) => setTimeout(resolve, 4000));
       result = await api.getRun(created.data.runId);
     }
+    state.run.current = null;
+    state.run.done += 1;
     if (!result.ok) {
       state.progress.push(`« ${row.adName} » : ${result.message}`);
       if (result.status === 401) {
         forgetSession();
         state.keyPhase = "intro";
+        state.run = null;
         return fail(`${result.message} Les résultats déjà obtenus restent affichés.`);
       }
       continue;
@@ -249,7 +257,8 @@ async function analyze() {
     state.report = result.data;
     render();
   }
-  setBusy(false, "Analyse terminée.");
+  state.run = null;
+  setBusy(false, "Vérification terminée.");
 }
 
 async function exportCsv() {
@@ -267,10 +276,10 @@ async function exportCsv() {
 
 async function explain() {
   if (!state.report) return;
-  const summary = toSummaryText(state.report);
+  const summary = `${toSummaryText(state.report)}\n\nRédige le message à envoyer à l'agence : la liste des corrections à demander, annonce par annonce, en distinguant ce qui est certain (mesures) de ce qui est à confirmer (alertes IA).`;
   const sent = await sendChatMessage(summary);
   state.summaryText = sent ? "" : summary;
-  state.notice = sent ? "Résumé envoyé dans la conversation (sans clé, jeton ni lien privé)." : "Envoi indisponible : copiez le résumé ci-dessous dans la conversation.";
+  state.notice = sent ? "Résumé envoyé à ChatGPT, qui prépare le message pour l'agence juste en dessous (aucune clé ni donnée de connexion n'est transmise)." : "Envoi indisponible : copiez le résumé ci-dessous dans la conversation.";
   render();
 }
 
@@ -345,27 +354,27 @@ function step(index: number, title: string, status: StepStatus, summary: Node | 
 
 function keyStep(): HTMLElement {
   if (state.keyPhase === "ready") {
-    return step(1, "Votre clé OpenAI", "done", h("span", {}, `Associée à cette session jusqu'à ${time(state.expiresAt)} · `, button("Terminer et supprimer", finish, "link")), null);
+    return step(1, "Compte OpenAI connecté", "done", h("span", {}, `Valable jusqu'à ${time(state.expiresAt)} · `, button("Terminer et supprimer mes données", finish, "link")), null);
   }
   if (state.keyPhase === "pending") {
-    return step(1, "Votre clé OpenAI", "current", null, [
+    return step(1, "Connecter votre compte OpenAI", "current", null, [
       h(
         "ol",
         { className: "howto" },
-        h("li", {}, "Ouvrez la page de configuration sécurisée."),
-        h("li", {}, "Saisissez-y ce code puis votre clé API OpenAI."),
-        h("li", {}, "Revenez ici et cliquez sur « J'ai terminé »."),
+        h("li", {}, "Cliquez sur « Ouvrir la page sécurisée » : elle s'ouvre dans votre navigateur."),
+        h("li", {}, "Recopiez-y le code ci-dessous, puis collez votre clé OpenAI."),
+        h("li", {}, "Revenez ici et cliquez sur « C'est fait »."),
       ),
       h("div", { className: "code", "aria-label": "Code d'association" }, state.code ?? ""),
       h("p", { className: "muted small" }, `Code à usage unique, valable jusqu'à ${time(state.codeExpiresAt)}. Ne collez jamais ce code ni votre clé dans la conversation.`),
-      h("div", { className: "actions" }, button("Ouvrir la page de configuration", openSetup, "secondary"), button("J'ai terminé, vérifier", verify, "primary"), button("Annuler", finish, "link")),
+      h("div", { className: "actions" }, button("Ouvrir la page sécurisée", openSetup, "secondary"), button("C'est fait", verify, "primary"), button("Annuler", finish, "link")),
       state.setupFallback ? h("p", { className: "small" }, "Ouverture automatique impossible : ouvrez ", h("span", { className: "mono" }, SETUP_URL), " dans votre navigateur.") : null,
     ]);
   }
-  return step(1, "Votre clé OpenAI", "current", null, [
-    h("p", {}, `Les analyses utilisent votre propre clé API OpenAI. Elles sont facturées sur votre compte API, séparément de votre abonnement ChatGPT : 1 appel par annonce, ${LIMITS.aiAttemptsPerRun} au maximum par validation.`),
-    h("p", { className: "muted small" }, `La clé se saisit sur une page externe sécurisée, jamais dans la conversation. Elle est chiffrée et supprimée au bout de ${SESSION_DURATION_LABEL} au plus ; dans ce composant, une seule saisie suffit pour ${LIMITS.runsPerSession} validations.`),
-    h("div", { className: "actions" }, button("Configurer ma clé", configure, "primary")),
+  return step(1, "Connecter votre compte OpenAI", "current", null, [
+    h("p", {}, "Campaign Preflight lit le texte de vos visuels avec l'IA d'OpenAI, en utilisant votre propre clé OpenAI : la vérification est facturée sur votre compte OpenAI (moins d'un centime par annonce), pas sur votre abonnement ChatGPT."),
+    h("p", { className: "muted small" }, `Par sécurité, la clé se saisit sur une page à part, jamais dans la conversation. Elle reste valable ${SESSION_DURATION_LABEL} (jusqu'à ${LIMITS.runsPerSession} vérifications), puis elle est effacée.`),
+    h("div", { className: "actions" }, button("Connecter mon compte OpenAI", configure, "primary")),
   ]);
 }
 
@@ -399,10 +408,10 @@ function kitStep(): HTMLElement {
   const rows = preview?.ok ? preview.manifest.rows : [];
   const eligible = rows.filter((row) => row.eligible).length;
   if (!state.kitEditing && state.report) {
-    return step(2, "Votre kit", "done", h("span", {}, `${state.csvName} · ${state.images.size} image(s) · `, button("Nouvelle validation", newValidation, "link")), null);
+    return step(2, "Annonces ajoutées", "done", h("span", {}, `${state.csvName} · ${state.images.size} visuel(s) · `, button("Vérifier un autre kit", newValidation, "link")), null);
   }
-  return step(2, "Votre kit", ready ? "current" : "todo", ready ? null : "Disponible après la configuration de la clé.", [
-    h("p", { className: "muted small" }, `Sélectionnez en une fois le CSV (au format du modèle, ${LIMITS.maxRowsPerKit} annonces maximum) et les images JPEG/PNG qu'il référence : par exemple tout le contenu du dossier du kit.`),
+  return step(2, "Ajouter vos annonces", ready ? "current" : "todo", ready ? null : "Disponible une fois votre compte OpenAI connecté.", [
+    h("p", {}, `Sélectionnez en une seule fois le tableau de vos annonces (fichier .csv, ${LIMITS.maxRowsPerKit} annonces maximum) et les visuels correspondants (JPEG ou PNG). Astuce : ouvrez le dossier du kit et sélectionnez tout.`),
     state.csvName || state.images.size
       ? h(
           "div",
@@ -414,9 +423,9 @@ function kitStep(): HTMLElement {
     h(
       "div",
       { className: "actions" },
-      picker(state.csvName || state.images.size ? "Changer les fichiers" : "Choisir les fichiers du kit", ".csv,.jpg,.jpeg,.png,text/csv,image/jpeg,image/png", true, onKitFiles),
+      picker(state.csvName || state.images.size ? "Changer mes fichiers" : "Choisir mes fichiers", ".csv,.jpg,.jpeg,.png,text/csv,image/jpeg,image/png", true, onKitFiles),
     ),
-    h("div", { className: "actions" }, button("Utiliser le kit d'exemple", loadDemo, "link"), button("Modèle CSV", downloadTemplate, "link")),
+    h("div", { className: "actions" }, button("Essayer avec un exemple", loadDemo, "link"), button("Modèle de tableau (.csv)", downloadTemplate, "link")),
     preview && !preview.ok
       ? h(
           "div",
@@ -433,8 +442,8 @@ function kitStep(): HTMLElement {
       ? h(
           "div",
           { className: "analyze" },
-          h("p", { className: "small" }, `Au plus ${eligible} appel(s) facturé(s) sur votre clé. Une copie réduite de chaque image et les références de sa ligne sont envoyées à OpenAI. Ce clic autorise cette validation.`),
-          button(`Analyser ${eligible} annonce(s)`, analyze, "primary", eligible === 0),
+          button(`Lancer la vérification (${eligible} annonce${eligible > 1 ? "s" : ""})`, analyze, "primary", eligible === 0),
+          h("p", { className: "muted small" }, `En cliquant, vous autorisez l'envoi à OpenAI d'une copie réduite de chaque visuel et de ses informations, soit ${eligible} appel(s) au maximum facturé(s) sur votre compte OpenAI. Durée : environ 5 secondes par annonce.`),
         )
       : null,
     state.exportNote && !state.report ? h("p", { className: "small" }, state.exportNote) : null,
@@ -451,10 +460,10 @@ const ORIGIN_LABEL: Record<CheckResult["origin"], string> = {
 function adVerdict(row: ReportRow): { label: string; css: string } {
   const blocking = row.kitIssues.length > 0 || row.mediaError !== null || row.technical.some((check) => check.status === "fail" && check.origin !== "meta_recommendation");
   if (blocking) return { label: "À corriger", css: "bad" };
-  if (row.phase === "awaiting_media") return { label: "Non analysée", css: "neutral" };
-  if (row.phase === "interrupted" || row.phase === "unknown_outcome" || (row.ai && row.ai.status !== "completed")) return { label: "Revue incomplète", css: "warn" };
+  if (row.phase === "awaiting_media") return { label: "Non vérifiée", css: "neutral" };
+  if (row.phase === "interrupted" || row.phase === "unknown_outcome" || (row.ai && row.ai.status !== "completed")) return { label: "Vérification incomplète", css: "warn" };
   if ((row.ai?.findings.length ?? 0) > 0 || row.technical.some((check) => check.status === "fail")) return { label: "À vérifier", css: "warn" };
-  return { label: "Aucun écart repéré", css: "ok" };
+  return { label: "Rien à signaler", css: "ok" };
 }
 
 function checkLine(check: CheckResult) {
@@ -468,7 +477,36 @@ function checkLine(check: CheckResult) {
   );
 }
 
+const FINDING_LABEL: Record<string, string> = {
+  language_mismatch: "Langue",
+  offer_mismatch: "Offre",
+  collection_mismatch: "Collection",
+  date_mismatch: "Date",
+};
+
+/** Carte d'attente pendant la vérification : en attente ou en cours (animation). */
+function pendingCard(row: ReportRow, current: boolean) {
+  return h(
+    "div",
+    { className: `result pending${current ? " current" : ""}` },
+    h(
+      "div",
+      { className: "ad" },
+      thumbnail(state.thumbs.get(row.mediaFilename)),
+      h(
+        "div",
+        { className: "ad-body" },
+        h("div", { className: "ad-title" }, row.adName || row.rowId, h("span", { className: "chip" }, row.locale)),
+        current
+          ? h("div", { className: "loading" }, h("span", { className: "spinner", "aria-hidden": "true" }), "Vérification en cours : format, dimensions et textes du visuel…")
+          : h("div", { className: "muted small" }, "En attente…"),
+      ),
+    ),
+  );
+}
+
 function reportCard(row: ReportRow) {
+  if (state.run && (state.run.current === row.rowId || state.run.waiting.has(row.rowId))) return pendingCard(row, state.run.current === row.rowId);
   const verdict = adVerdict(row);
   const facts = row.facts;
   const ai = row.ai;
@@ -494,7 +532,7 @@ function reportCard(row: ReportRow) {
       ? h(
           "div",
           { className: "group bad" },
-          h("h3", {}, "À corriger"),
+          h("h3", {}, "À corriger avant l'envoi"),
           ...row.kitIssues.map((issue) => h("div", { className: "check" }, h("strong", {}, `CSV — ${issue.field}`), h("div", { className: "small" }, issue.message))),
           row.mediaError ? h("div", { className: "check" }, h("strong", {}, "Image refusée"), h("div", { className: "small" }, `${row.mediaError} : fournir un JPEG/PNG statique lisible dans les limites du POC.`)) : null,
           ...failures.map(checkLine),
@@ -504,19 +542,20 @@ function reportCard(row: ReportRow) {
       ? h(
           "div",
           { className: "group warn" },
-          h("h3", {}, "À confirmer (alertes IA)"),
+          h("h3", {}, "À vérifier : différence repérée par l'IA"),
           ...ai.findings.map((finding) =>
             h(
               "div",
               { className: "check" },
-              h("div", {}, h("strong", {}, `« ${finding.observedText} »`), h("span", { className: "muted small" }, ` · référence : ${finding.expected}`)),
+              h("div", {}, h("span", { className: "chip" }, FINDING_LABEL[finding.kind] ?? finding.kind), " ", h("strong", {}, `Sur le visuel : « ${finding.observedText} »`)),
+              h("div", { className: "small" }, `Attendu : ${finding.expected}`),
               h("div", { className: "small" }, finding.explanation),
-              h("div", { className: "small" }, `À demander : ${finding.action}`),
+              h("div", { className: "small" }, `À demander à l'agence : ${finding.action}`),
             ),
           ),
         )
       : null,
-    ai && ai.status !== "completed" && ai.errorCode ? h("div", { className: "group warn" }, h("h3", {}, "Revue IA non achevée"), h("div", { className: "small" }, `${AI_ERROR_MESSAGES[ai.errorCode]} Les mesures techniques restent valables.`)) : null,
+    ai && ai.status !== "completed" && ai.errorCode ? h("div", { className: "group warn" }, h("h3", {}, "Lecture des textes non effectuée"), h("div", { className: "small" }, `${AI_ERROR_MESSAGES[ai.errorCode]} Les contrôles de format ci-dessous restent valables.`)) : null,
     row.phase === "interrupted" || row.phase === "unknown_outcome"
       ? h("div", { className: "group warn small" }, row.phase === "interrupted" ? "Traitement interrompu, sans relance automatique." : "Issue de l'appel IA inconnue (un coût a pu être facturé), sans relance automatique.")
       : null,
@@ -529,11 +568,11 @@ function reportCard(row: ReportRow) {
           ...(ai?.notChecked ?? []).map((item) => h("div", { className: "check small" }, `IA — ${item.check} : ${item.reason}`)),
         )
       : null,
-    ai?.status === "completed" && ai.findings.length === 0 ? h("p", { className: "small" }, "IA : aucune contradiction explicite repérée avec les références fournies.") : null,
+    ai?.status === "completed" && ai.findings.length === 0 ? h("p", { className: "small" }, "Textes du visuel : aucune différence repérée avec vos informations (langue, offre, collection, date).") : null,
     h(
       "details",
       { className: "group" },
-      h("summary", {}, `Mesures conformes (${passed.length}) et détails`),
+      h("summary", {}, `Voir le détail des ${passed.length} contrôles réussis`),
       ...passed.map(checkLine),
       ai?.observations.length ? h("div", { className: "small muted" }, "Texte visible lu par l'IA : ", ai.observations.map((item) => `« ${item.text} »`).join(" · ")) : null,
       ai?.usage ? h("div", { className: "small muted" }, `Usage IA : ${ai.usage.inputTokens} jetons en entrée, ${ai.usage.outputTokens} en sortie (dont ${ai.usage.reasoningTokens} de raisonnement), ${((ai.latencyMs ?? 0) / 1000).toFixed(1).replace(".", ",")} s.`) : null,
@@ -547,28 +586,36 @@ function tile(value: number, label: string, css: string) {
 
 function reportStep(): HTMLElement {
   const report = state.report;
-  if (!report) return step(3, "Rapport", "todo", "Disponible après l'analyse.", null);
+  if (!report) return step(3, "Résultats", "todo", "Disponibles après la vérification.", null);
   const s = report.summary;
-  const analysing = state.busy && state.notice.startsWith("Analyse");
-  return step(3, "Rapport", "current", null, [
-    h(
-      "div",
-      { className: "tiles" },
-      tile(s.technicalErrors + s.kitIssues, "à corriger", s.technicalErrors + s.kitIssues ? "bad" : "neutral"),
-      tile(s.aiAlerts, "alerte(s) IA à confirmer", s.aiAlerts ? "warn" : "neutral"),
-      tile(s.recommendationGaps, "écart(s) aux recommandations", s.recommendationGaps ? "warn" : "neutral"),
-      tile(s.aiNotCompleted, "revue(s) IA incomplète(s)", s.aiNotCompleted ? "warn" : "neutral"),
-    ),
-    analysing ? h("div", { className: "box info small" }, state.notice) : null,
+  const run = state.run;
+  return step(3, "Résultats", "current", null, [
+    run
+      ? h(
+          "div",
+          { className: "progress-box" },
+          h("div", { className: "loading" }, h("span", { className: "spinner", "aria-hidden": "true" }), `Vérification de l'annonce ${Math.min(run.done + 1, run.total)} sur ${run.total}…`),
+          h("progress", { value: run.done, max: run.total }),
+        )
+      : h(
+          "div",
+          { className: "tiles" },
+          tile(s.technicalErrors + s.kitIssues, "point(s) à corriger", s.technicalErrors + s.kitIssues ? "bad" : "neutral"),
+          tile(s.aiAlerts, "point(s) à vérifier", s.aiAlerts ? "warn" : "neutral"),
+          tile(s.recommendationGaps, "conseil(s) Meta non suivi(s)", s.recommendationGaps ? "warn" : "neutral"),
+          tile(s.aiNotCompleted, "vérification(s) incomplète(s)", s.aiNotCompleted ? "warn" : "neutral"),
+        ),
     ...report.rows.map(reportCard),
     ...state.progress.map((line) => h("div", { className: "box warn small" }, line)),
-    h(
+    run
+      ? null
+      : h(
       "div",
       { className: "actions" },
-      button("Exporter le CSV", exportCsv, "secondary"),
-      button("Expliquer dans ChatGPT", explain, "secondary"),
-      button("Nouvelle validation", newValidation, "link"),
-      button("Terminer et supprimer", finish, "link"),
+      button("Préparer le message pour l'agence", explain, "primary"),
+      button("Récupérer le rapport (CSV)", exportCsv, "secondary"),
+      button("Vérifier un autre kit", newValidation, "link"),
+      button("Terminer et supprimer mes données", finish, "link"),
     ),
     state.exportNote ? h("p", { className: "small" }, state.exportNote) : null,
     ...selectableText(state.exportText, "export"),
@@ -602,12 +649,14 @@ function diagnostics() {
 function render(): void {
   const theme = hostTheme();
   if (theme) document.documentElement.dataset.theme = theme;
-  const analysing = state.busy && state.notice.startsWith("Analyse");
+  const analysing = Boolean(state.run);
   replace(
     root,
     h("header", {}, h("h1", {}, "Campaign Preflight"), h("p", { className: "muted" }, "Vérifiez vos annonces Instagram Feed avant de transmettre le kit à votre agence.")),
     state.error ? h("div", { className: "box bad", role: "alert" }, state.error) : null,
-    state.notice && !analysing ? h("div", { className: "box info", role: "status" }, state.notice) : null,
+    state.notice && !analysing
+      ? h("div", { className: "box info", role: "status" }, state.busy ? h("span", { className: "spinner", "aria-hidden": "true" }) : null, state.notice)
+      : null,
     keyStep(),
     kitStep(),
     reportStep(),

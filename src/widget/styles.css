@@ -99,3 +99,12 @@ textarea.export, textarea.summary { width: 100%; font: 12px/1.4 ui-monospace, Me
 .files-status { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 6px; }
 .chip.ok { color: var(--ok); border-color: var(--ok); }
 .chip.missing { color: var(--bad); border-color: var(--bad); }
+
+@keyframes cp-spin { to { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; vertical-align: -2px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: cp-spin .8s linear infinite; }
+.loading { display: flex; align-items: center; font-weight: 600; margin-top: 6px; }
+.result.pending { opacity: .75; }
+.result.pending.current { opacity: 1; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.progress-box { margin: 4px 0 12px; }
+progress { width: 100%; height: 8px; margin-top: 8px; accent-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; border-top-color: var(--accent); } }
