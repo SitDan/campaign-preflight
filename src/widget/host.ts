@@ -37,6 +37,13 @@ export function hostInfo(): HostInfo {
   return info;
 }
 
+/** Thème clair/sombre communiqué par l'hôte (contexte MCP Apps), si disponible. */
+export function hostTheme(): "light" | "dark" | undefined {
+  if (!info.connected) return undefined;
+  const theme = app.getHostContext()?.theme;
+  return theme === "light" || theme === "dark" ? theme : undefined;
+}
+
 type OpenAiExtension = { openExternal?: (args: { href: string }) => unknown };
 
 /** ui/open-link (standard MCP Apps), puis openExternal (extension ChatGPT documentée). */
