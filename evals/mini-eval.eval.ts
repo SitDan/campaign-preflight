@@ -35,7 +35,7 @@ describe("mini-évaluation (API réelle)", () => {
   it("exécute les six cas annotés une fois, sans relance", { timeout: 6 * 60_000 }, async () => {
     const apiKey = loadKey();
     // Modèle évalué : EVAL_MODEL (comparaison explicite), sinon le modèle du produit.
-    const model = process.env.EVAL_MODEL || process.env.OPENAI_MODEL || "gpt-6.1-sol";
+    const model = process.env.EVAL_MODEL || process.env.OPENAI_MODEL || "gpt-6-luna";
     const { cases } = JSON.parse(readFileSync("evals/cases.json", "utf8")) as { cases: Case[] };
     expect(cases.length).toBeLessThanOrEqual(MAX_CALLS);
     const analyzer = createOpenAiVisionAnalyzer();

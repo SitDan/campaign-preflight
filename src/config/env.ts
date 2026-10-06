@@ -24,7 +24,7 @@ const publicSchema = z.object({
   /** Origines exactes du composant dans l'hôte, séparées par des virgules. */
   WIDGET_ALLOWED_ORIGIN: z.string().default(""),
   DEMO_ENABLED: z.enum(["true", "false"]).default("true"),
-  OPENAI_MODEL: z.string().min(1).max(100).default("gpt-6.1-sol"),
+  OPENAI_MODEL: z.string().min(1).max(100).default("gpt-6-luna"),
   ABUSE_SESSION_CREATIONS_PER_HOUR_PER_IP: intFromEnv(ABUSE_DEFAULTS.sessionCreationsPerHourPerIp),
   ABUSE_SETUP_SUBMISSIONS_PER_HOUR_PER_IP: intFromEnv(ABUSE_DEFAULTS.setupSubmissionsPerHourPerIp),
   ABUSE_GLOBAL_SESSIONS_PER_DAY: intFromEnv(ABUSE_DEFAULTS.globalSessionsPerDay),

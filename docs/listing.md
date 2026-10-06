@@ -30,7 +30,7 @@ Le produit ne juge pas le style, ne certifie pas la conformité juridique et ne 
 ## Prérequis
 
 - Un compte ChatGPT, sur le web, autorisé à ajouter un serveur MCP personnalisé. Les politiques du workspace s'appliquent.
-- Une **clé API OpenAI personnelle**, avec du crédit API et l'accès au modèle configuré (`gpt-6.1-sol`). La facturation API est distincte de l'abonnement ChatGPT.
+- Une **clé API OpenAI personnelle**, avec du crédit API et l'accès au modèle configuré (`gpt-6-luna`). La facturation API est distincte de l'abonnement ChatGPT.
 
 ## Permissions et données
 

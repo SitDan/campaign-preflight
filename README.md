@@ -28,7 +28,7 @@ Hors périmètre : vidéo, carrousels, autres placements, compte ou API Meta, pu
 ### Prérequis
 
 - **ChatGPT sur le web**, avec un compte ou un workspace qui autorise l'ajout d'un serveur MCP personnalisé. Les politiques de workspace s'appliquent : tous les comptes ne le permettent pas.
-- **Votre propre clé API OpenAI**, avec du crédit API et l'accès au modèle `gpt-6.1-sol`. Les analyses sont facturées sur votre compte API, **séparément de l'abonnement ChatGPT**. Une validation de 3 annonces fait au plus 3 appels.
+- **Votre propre clé API OpenAI**, avec du crédit API et l'accès au modèle `gpt-6-luna`. Les analyses sont facturées sur votre compte API, **séparément de l'abonnement ChatGPT**. Une validation de 3 annonces fait au plus 3 appels.
 
 ### Installation dans ChatGPT
 

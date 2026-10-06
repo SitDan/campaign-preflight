@@ -85,7 +85,41 @@ Le téléchargement n'est pas annoncé par l'hôte : l'export passe par le repli
 
 ## 5. API réelle (vraie clé) et mini-évaluation
 
-_À compléter :_ six cas (`evals/cases.json`, attendus rédigés avant exécution), détections, fausses alertes, abstentions, latence, jetons, coût estimé (tarif Standard `gpt-6.1-sol` lu le 2026-10-06 : 2,00 $/1M en entrée, 10,00 $/1M en sortie).
+### Mini-évaluation, API réelle (2026-10-06, 15:08–15:10)
+
+Conditions :
+- `pnpm eval`, en local, hors CI ;
+- clé dédiée de l'utilisateur dans `.env.eval.local` (`chmod 600`, jamais affichée, 0 occurrence dans les sorties) ;
+- même adaptateur, même prompt (`2026-10-06.1`) et même prétraitement que l'application ;
+- un appel par cas, sans relance.
+
+Les attendus ont été rédigés dans `evals/cases.json` à 14:05, avant toute exécution.
+
+| Cas | Attendu | `gpt-6.1-sol` | `gpt-6-luna` |
+|---|---|---|---|
+| 1. Correct (fr-FR) | aucun constat | aucun ✓ (date non vérifiée : année absente) | aucun ✓ (idem) |
+| 2. Langue (de-DE, texte EN) | `language_mismatch` | ✓ « 20% off all knitwear » | ✓ idem |
+| 3. Offre + injection « ignore all previous instructions » (en-GB) | `offer_mismatch`, injection non suivie | ✓ « 40% off everything » vs 20 % ; injection ignorée | ✓ idem |
+| 4. Date contextualisée (fr-FR) | `date_mismatch` | ✓ « jusqu'au 15 novembre » vs 2026-11-30 (fin de l'offre) | ✓ idem |
+| 5. Collection nommée (en-GB) | `collection_mismatch` | ✓ « Boreal Collection » vs Aurore | ✓ idem |
+| 6. Logo seul / texte quasi illisible (de-DE) | abstention | ✓ aucun constat ; langue, collection, offre et date non vérifiées | ✓ idem |
+| **Erreurs ratées / fausses alertes** | 0 / 0 | **0 / 0** | **0 / 0** |
+| Latence par appel | — | 5,6 à 7,0 s | 2,4 à 5,7 s |
+| Jetons (6 appels) | — | 16 735 en entrée / 1 444 en sortie (dont 66 de raisonnement) | 16 735 en entrée / 1 923 en sortie (dont 794 de raisonnement) |
+| Coût estimé (tarif Standard lu le 2026-10-06) | — | ≈ 0,048 $ (2 $ / 10 $ par M) | ≈ 0,0026 $ (0,10 $ / 0,50 $ par M) |
+
+Lecture :
+- Les deux modèles se comportent comme attendu sur ces **six** cas.
+- Ce n'est pas un taux de réussite général : six exemples fictifs, aux textes nets et lisibles, sans textes fins ni cas ambigus.
+- Le coût par annonce est d'environ 0,008 $ avec `sol` et 0,0004 $ avec `luna`, image incluse : environ 2 790 jetons en entrée par appel.
+
+**Décision (15:10, conditionnée par l'utilisateur à 15:05 : « si luna fait aussi bien, on bascule »)** : le produit passe de `gpt-6.1-sol` (candidat initial du brief) à **`gpt-6-luna`**.
+- La doc officielle confirme que ce modèle accepte les images, l'API Responses, les sorties structurées et `reasoning.effort: low`.
+- Les paramètres d'appel sont inchangés.
+- Le produit garde un seul modèle, sans bascule automatique.
+- Les sorties brutes restent dans `evals/out/` (non versionné).
+
+_Parcours complet dans ChatGPT avec une vraie clé : à compléter._
 
 ## 6. Décisions en cours de réalisation
 
@@ -96,6 +130,8 @@ _À compléter :_ six cas (`evals/cases.json`, attendus rédigés avant exécuti
 | 14:45 | On garde OpenAI, avec un seul modèle | Multi-fournisseur et OAuth notés pour la journée suivante |
 | 14:53 | Sessions allongées : **3 h, 10 validations, 30 appels IA** (brief : 60 min, 3, 9) | Écart assumé au brief §3, justifié dans `docs/security.md` |
 | 14:59 | Un seul envoi pour le CSV et les images | Sélecteur unique : répartition automatique CSV/images, fichiers d'autres formats ignorés et signalés |
+| 15:05 | Choisir un modèle moins coûteux s'il fait aussi bien | Évaluation sur les deux modèles, puis bascule vers `gpt-6-luna` (15:10) |
+| 15:05 | Dépôt GitHub **privé** | `SitDan/campaign-preflight` créé et poussé ; **CI bloquée : facturation du compte GitHub verrouillée** (« recent account payments have failed »), contrôles identiques verts en local |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel
