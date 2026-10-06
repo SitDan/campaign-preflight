@@ -279,7 +279,7 @@ async function explain() {
   const summary = `${toSummaryText(state.report)}\n\nRédige le message à envoyer à l'agence : la liste des corrections à demander, annonce par annonce, en distinguant ce qui est certain (mesures) de ce qui est à confirmer (alertes IA).`;
   const sent = await sendChatMessage(summary);
   state.summaryText = sent ? "" : summary;
-  state.notice = sent ? "Résumé envoyé à ChatGPT, qui prépare le message pour l'agence juste en dessous (aucune clé ni donnée de connexion n'est transmise)." : "Envoi indisponible : copiez le résumé ci-dessous dans la conversation.";
+  state.notice = sent ? "C'est parti : ChatGPT rédige l'e-mail pour votre agence juste sous ce composant (aucune clé ni donnée de connexion n'est transmise)." : "Envoi indisponible : copiez le résumé ci-dessous dans la conversation.";
   render();
 }
 
@@ -612,11 +612,12 @@ function reportStep(): HTMLElement {
       : h(
       "div",
       { className: "actions" },
-      button("Préparer le message pour l'agence", explain, "primary"),
+      button("Rédiger l'e-mail de corrections pour l'agence", explain, "primary"),
       button("Récupérer le rapport (CSV)", exportCsv, "secondary"),
       button("Vérifier un autre kit", newValidation, "link"),
       button("Terminer et supprimer mes données", finish, "link"),
     ),
+    run ? null : h("p", { className: "muted small" }, "« Rédiger l'e-mail » : ChatGPT écrit, juste sous ce composant, un message prêt à copier pour votre agence, avec les corrections à demander annonce par annonce. Rien n'est envoyé à l'agence automatiquement."),
     state.exportNote ? h("p", { className: "small" }, state.exportNote) : null,
     ...selectableText(state.exportText, "export"),
     ...selectableText(state.summaryText, "summary"),
