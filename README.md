@@ -106,8 +106,13 @@ pnpm dev            # nécessite .env.development.local (voir .env.example)
 | `pnpm test` | tests Vitest (sans appel modèle ni secret réel) |
 | `pnpm typecheck`, `pnpm lint`, `pnpm build` | contrôles statiques et build (le composant est construit par esbuild avant) |
 | `pnpm scan:secrets` | recherche de secrets dans les fichiers versionnés |
+| `pnpm audit --prod` | revue des dépendances de production (aucune vulnérabilité connue au 2026-10-06) |
 | `pnpm fixtures` | régénère le kit fictif et les visuels d'évaluation |
 | `pnpm eval` | mini-évaluation **API réelle**, locale et hors CI (6 appels au plus) |
+
+### Intégration continue
+
+`.github/workflows/ci.yml` décrit la chaîne : lockfile figé, types, lint, tests, build et scan de secrets. Son exécution est **désactivée sur le dépôt privé**, par choix de coût. Les mêmes contrôles se lancent en local : `pnpm check && pnpm scan:secrets`.
 
 ### Configuration serveur
 

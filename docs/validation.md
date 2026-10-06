@@ -19,6 +19,10 @@ Journal daté du 2026-10-06. Heure de départ du compteur : 13:28:37 CEST.
 
 Autres contrôles : `pnpm typecheck`, `pnpm lint`, `pnpm build` et `pnpm scan:secrets` sont verts.
 
+Revue des dépendances (`pnpm audit`, 2026-10-06) :
+- production : aucune vulnérabilité connue ;
+- développement : 1 alerte « high » sur `braces` ≤ 3.0.3, un déni de service par motifs glob imbriqués, via `eslint-config-next` → `fast-glob` → `micromatch`. Aucun correctif n'est publié. L'outillage de lint ne traite que nos propres fichiers et n'est pas déployé : **risque accepté**.
+
 ## 2. Banc local (local)
 
 Redis 7 et un proxy REST compatible Upstash tournent dans Docker. L'application est servie par `next dev`, le composant depuis une autre origine (`localhost:4000`). Clé **synthétique** uniquement.
@@ -131,7 +135,8 @@ _Parcours complet dans ChatGPT avec une vraie clé : à compléter._
 | 14:53 | Sessions allongées : **3 h, 10 validations, 30 appels IA** (brief : 60 min, 3, 9) | Écart assumé au brief §3, justifié dans `docs/security.md` |
 | 14:59 | Un seul envoi pour le CSV et les images | Sélecteur unique : répartition automatique CSV/images, fichiers d'autres formats ignorés et signalés |
 | 15:05 | Choisir un modèle moins coûteux s'il fait aussi bien | Évaluation sur les deux modèles, puis bascule vers `gpt-6-luna` (15:10) |
-| 15:05 | Dépôt GitHub **privé** | `SitDan/campaign-preflight` créé et poussé ; **CI bloquée : facturation du compte GitHub verrouillée** (« recent account payments have failed »), contrôles identiques verts en local |
+| 15:05 | Dépôt GitHub **privé** | `SitDan/campaign-preflight` créé et poussé. La CI ne démarrait pas : la facturation du compte GitHub est verrouillée (« recent account payments have failed ») |
+| 15:13 | Pas de CI payante pour ce POC, dépôt gardé privé | GitHub Actions **désactivé** sur le dépôt ; workflow conservé ; contrôles identiques lancés en local (`pnpm check`, `pnpm scan:secrets`) |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel
