@@ -64,7 +64,18 @@ URL stable : `https://campaign-preflight.vercel.app` (MCP : `/mcp`). Node 24, r�
 
 ## 4. ChatGPT (hôte réel)
 
-_À compléter :_ rendu du composant, origine réelle de l'iframe, fetch CORS, sélection de fichiers, ouverture de `/setup`, téléchargement ou repli, message dans la conversation.
+Compte de l'utilisateur, application ChatGPT, ajout via Plugins → Add custom MCP server sans authentification. Plugin créé sous le nom « Test datawords », en version 1.0.0, ce qui correspond à notre `serverInfo`.
+
+| Preuve | Résultat | Source |
+|---|---|---|
+| Ajout du serveur MCP | `initialize` et listes appelés par ChatGPT à 14:17 (3 `POST /mcp` 200) | logs Vercel |
+| Rendu du composant | affiché dans la conversation, hôte `chatgpt` | capture utilisateur, 14:24 |
+| Origine réelle de l'iframe | `https://campaign-preflight-vercel-app.web-sandbox.oaiusercontent.com`, dérivée de `_meta.ui.domain` | log `rules.get` (14:22) + capture |
+| fetch CORS vers notre API | « Service joignable — référentiel 1.0.0, 7 règles Meta » une fois l'origine fixée dans `WIDGET_ALLOWED_ORIGIN` | capture |
+| Capacités annoncées par l'hôte | liens externes : oui · téléchargement (`ui/download-file`) : **non** · message : oui | capture |
+| CORS strict | origine exacte autorisée ; `https://e2e.invalid` et une autre sandbox `*.web-sandbox.oaiusercontent.com` refusées | curl, 14:23 |
+
+_Parcours complet dans ChatGPT : en cours._ Le téléchargement n'est pas annoncé par l'hôte : l'export passe par le repli « CSV intégral sélectionnable ».
 
 ## 5. API réelle (vraie clé) et mini-évaluation
 
@@ -81,3 +92,4 @@ _À compléter :_ six cas (`evals/cases.json`, attendus rédigés avant exécuti
 | Composant complet, fixtures, éval, docs | 14:01 | 14:15 | Banc local de bout en bout |
 | Attente d'accès : Redis | 14:15 | 14:16 | Acceptation des conditions Upstash par l'utilisateur |
 | Déploiement de J1/J2 avec Redis, parcours API sur Vercel | 14:16 | 14:20 | |
+| Preuve ChatGPT : ajout, rendu, origine réelle, CORS | 14:17 | 14:24 | Ajout du plugin et captures par l'utilisateur |
