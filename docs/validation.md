@@ -84,6 +84,7 @@ Compte de l'utilisateur, application ChatGPT, ajout via Plugins → Add custom M
 | `ui/message` (« Expliquer dans ChatGPT ») | ChatGPT a reçu le résumé nettoyé et l'a commenté dans la conversation | capture (14:42) |
 | Sélection de fichiers dans l'iframe | `kit-invalide.csv` + 3 images choisis via les boutons du composant ; import refusé (`cta` manquant, `row_id` en double) | capture (14:42) |
 | Cache du composant par l'hôte | Après le déploiement de 14:53 (sessions de 3 h), ChatGPT affichait encore « 60 minutes ». Aucune relecture de la ressource dans les logs : le composant est mis en cache par URI | capture + logs (15:17) |
+| Composant en coquillage stable (v3) | Après « Actualiser les outils » (15:26:53, 4 `POST /mcp`), l'ouverture du composant charge `/widget/app.css` et `/widget/app.js` depuis notre domaine (15:27:44, 200) : CSP `resourceDomains` acceptée par ChatGPT ; les déploiements suivants de l'interface n'exigent plus de rafraîchissement | logs Vercel + capture des réglages (plugin en « dev mode », statut DEVELOPMENT) |
 | Invocation | Dans un nouveau chat sans plugin sélectionné, ChatGPT a proposé son mode « Work » au lieu d'appeler l'outil. Avec le plugin sélectionné via `@`, l'outil est appelé. Précisé dans le README. | capture (15:17) |
 | Retour utilisateur intégré | miniatures cassées (URL `blob:` probablement bloquées par la CSP de l'hôte) ⇒ passage en `data:` ; interface jugée peu ergonomique ⇒ parcours guidé (déployé à 14:34) | captures |
 
