@@ -126,7 +126,20 @@ Lecture :
 - Le produit garde un seul modèle, sans bascule automatique.
 - Les sorties brutes restent dans `evals/out/` (non versionné).
 
-_Parcours complet dans ChatGPT avec une vraie clé : à compléter._
+### Parcours réel dans ChatGPT avec la clé de l'utilisateur (déployé + ChatGPT + API réelle)
+
+D'après les logs serveur, la séquence est la suivante :
+
+| Heure | Étape |
+|---|---|
+| 15:28:35 | session créée depuis le composant |
+| 15:28:43 | clé réelle déposée sur `/setup` |
+| 15:28:56 | validation créée |
+| 15:28:57 → 15:29:08 | 3 analyses terminées **sans erreur IA**, avec `gpt-6-luna` |
+
+Chaque annonce a consommé environ 3 950 jetons en entrée et 218 à 311 en sortie (0 à 142 de raisonnement), pour 4,3 à 5,1 s côté serveur, sharp compris. Le coût estimé est d'environ 0,0016 $ pour les 3 annonces.
+
+_Constats affichés (FR rien, UK offre, DE langue) : à confirmer par la capture du rapport._
 
 ## 6. Décisions en cours de réalisation
 
@@ -141,6 +154,7 @@ _Parcours complet dans ChatGPT avec une vraie clé : à compléter._
 | 15:05 | Dépôt GitHub **privé** | `SitDan/campaign-preflight` créé et poussé. La CI ne démarrait pas : la facturation du compte GitHub est verrouillée (« recent account payments have failed ») |
 | 15:13 | Pas de CI payante pour ce POC, dépôt gardé privé | GitHub Actions **désactivé** sur le dépôt ; workflow conservé ; contrôles identiques lancés en local (`pnpm check`, `pnpm scan:secrets`) |
 | 15:20 | Plugin renommé « Campaign Preflight » ; pas de rafraîchissement manuel du plugin à chaque mise à jour pour 100 utilisateurs | README : nom à saisir ; composant en coquillage stable (`widget-v3`) qui charge le code depuis notre domaine (CSP `resourceDomains` = notre seule origine) ; un seul rafraîchissement requis pour passer au coquillage |
+| 15:30 | Chargement visible par annonce ; interface compréhensible par des non-techniciens | Progression « annonce X sur N », carte animée, libellés grand public ; déployé à 15:33, visible sans rafraîchir le plugin grâce au coquillage v3 |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel
