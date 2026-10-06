@@ -20,7 +20,7 @@ const FILES: Record<string, string> = {
 export async function GET(request: Request, { params }: { params: Promise<{ name: string }> }) {
   const cors = widgetCors(request);
   const { name } = await params;
-  const type = FILES[name];
+  const type = Object.hasOwn(FILES, name) ? FILES[name] : undefined;
   if (!type) return errorResponse("invalid_request", cors);
   const bytes = await readFile(path.join(process.cwd(), "fixtures", "demo", name));
   return new Response(new Uint8Array(bytes), { headers: { ...cors, "Content-Type": type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });

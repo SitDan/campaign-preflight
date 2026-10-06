@@ -9,3 +9,12 @@ export function bearerOf(request: Request): string | null {
 export function widgetCors(request: Request): Record<string, string> {
   return corsHeaders(request.headers.get("origin"), getConfig().widgetAllowedOrigins);
 }
+
+/** Décodage tolérant d'un segment d'URL (jamais d'exception sur un « % » isolé). */
+export function safeDecode(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}

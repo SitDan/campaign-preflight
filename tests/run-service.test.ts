@@ -112,7 +112,8 @@ describe("validation et analyse", () => {
     const { deps, bearer, run } = await setup(fake.analyzer);
     const bytes = await image();
     const first = analyzeRow(deps, bearer, { runId: run.runId, rowId: "A1", filename: "a1.jpg", bytes, startedAt: deps.now() });
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    for (let waited = 0; fake.calls.length === 0 && waited < 5000; waited += 10) await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(fake.calls).toHaveLength(1);
     const second = await analyzeRow(deps, bearer, { runId: run.runId, rowId: "A1", filename: "a1.jpg", bytes, startedAt: deps.now() }).catch(errorCode);
     expect(second).toBe("operation_in_progress");
     const other = await analyzeRow(deps, bearer, { runId: run.runId, rowId: "B1", filename: "b1.jpg", bytes, startedAt: deps.now() }).catch(errorCode);

@@ -137,3 +137,17 @@ describe("GET /setup", () => {
     expect(html).not.toMatch(/<script[^>]+src=/);
   });
 });
+
+describe("GET /api/demo/[name]", () => {
+  it("liste fermée : noms hérités du prototype ou chemins refusés proprement", async () => {
+    vi.resetModules();
+    const demo = await import("@/app/api/demo/[name]/route");
+    for (const name of ["constructor", "__proto__", "toString", "../package.json", "kit.csv/../x"]) {
+      const response = await demo.GET(new Request(`${APP}/api/demo/x`), { params: Promise.resolve({ name }) });
+      expect(response.status).toBe(400);
+    }
+    const ok = await demo.GET(new Request(`${APP}/api/demo/kit.csv`, { headers: { origin: WIDGET } }), { params: Promise.resolve({ name: "kit.csv" }) });
+    expect(ok.status).toBe(200);
+    expect(ok.headers.get("access-control-allow-origin")).toBe(WIDGET);
+  });
+});

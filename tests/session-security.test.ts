@@ -123,7 +123,8 @@ describe("isolation des sessions A/B", () => {
     const a = await createSession(deps, { ip: null });
     await expectCode(authorize(deps, null), "session_invalid");
     await expectCode(authorize(deps, a.bearer.slice(0, -1)), "session_invalid");
-    await expectCode(authorize(deps, `${a.bearer.slice(0, -1)}A`), "session_invalid");
+    const forged = `${a.bearer.slice(0, -1)}${a.bearer.endsWith("A") ? "B" : "A"}`;
+    await expectCode(authorize(deps, forged), "session_invalid");
   });
 });
 

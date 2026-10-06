@@ -5,7 +5,7 @@ import { handleError, json, readBoundedBytes } from "@/lib/http";
 import { log } from "@/lib/log";
 import { preflight } from "@/security/cors";
 import { getRunDeps } from "@/server/context";
-import { bearerOf, widgetCors } from "@/server/route-helpers";
+import { bearerOf, safeDecode, widgetCors } from "@/server/route-helpers";
 import { ServiceError } from "@/services/errors";
 import { analyzeRow } from "@/services/run-service";
 
@@ -33,12 +33,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ run
     const deps = getRunDeps();
     const view = await analyzeRow(deps, bearerOf(request), {
       runId,
-      rowId: decodeURIComponent(rowId),
+      rowId: safeDecode(rowId),
       filename: file.name,
       bytes: new Uint8Array(await file.arrayBuffer()),
       startedAt,
     });
-    const row = view.rows.find((item) => item.row.rowId === decodeURIComponent(rowId));
+    const row = view.rows.find((item) => item.row.rowId === safeDecode(rowId));
     const usage = row?.state.ai?.usage;
     log("row.analyzed", {
       status: 200,
