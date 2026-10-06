@@ -96,3 +96,6 @@ details > summary { cursor: pointer; font-weight: 600; }
 details.group > summary { font-size: 13px; }
 textarea.export, textarea.summary { width: 100%; font: 12px/1.4 ui-monospace, Menlo, monospace; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-top: 6px; }
 .diag { margin-top: 14px; padding: 4px 2px; }
+.files-status { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0 6px; }
+.chip.ok { color: var(--ok); border-color: var(--ok); }
+.chip.missing { color: var(--bad); border-color: var(--bad); }

@@ -95,6 +95,7 @@ _À compléter :_ six cas (`evals/cases.json`, attendus rédigés avant exécuti
 | 14:37 | Pas d'IA pour lire ou réparer le CSV | Diagnostics déterministes + bouton « Demander de l'aide à ChatGPT » (diagnostic seul, sans données) |
 | 14:45 | On garde OpenAI, avec un seul modèle | Multi-fournisseur et OAuth notés pour la journée suivante |
 | 14:53 | Sessions allongées : **3 h, 10 validations, 30 appels IA** (brief : 60 min, 3, 9) | Écart assumé au brief §3, justifié dans `docs/security.md` |
+| 14:59 | Un seul envoi pour le CSV et les images | Sélecteur unique : répartition automatique CSV/images, fichiers d'autres formats ignorés et signalés |
 | 14:56 | OAuth reporté après le P0 | Piste n°1 de la journée suivante : Descope MCP Auth (Marketplace Vercel), estimée à 1–1,5 jour au total ; compatibilité ChatGPT ↔ Descope à vérifier en premier |
 
 ## 7. Temps réel

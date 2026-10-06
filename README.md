@@ -42,7 +42,7 @@ Hors périmètre : vidéo, carrousels, autres placements, compte ou API Meta, pu
 2. Dans le composant, cliquez sur **Configurer ma clé**. Un code d'association s'affiche (usage unique, 10 minutes).
 3. **Ouvrez la page de configuration** (`/setup`). Saisissez **le code affiché dans votre composant** et votre clé API. Ne collez jamais ces valeurs dans la conversation.
 4. De retour dans ChatGPT, cliquez sur **Vérifier la connexion**. La clé est enregistrée mais pas testée : la première analyse vérifiera l'accès au modèle.
-5. Choisissez votre CSV et vos images, ou cliquez sur **Charger le kit fictif**. Contrôlez l'aperçu.
+5. Cliquez sur **Choisir les fichiers du kit** et sélectionnez en une fois le CSV et ses images (par exemple tout le dossier), ou cliquez sur **Utiliser le kit d'exemple**. Contrôlez l'aperçu.
 6. Cliquez sur **Analyser les N annonces**. Ce clic autorise au plus N appels facturés et l'envoi d'une copie réduite de chaque image à OpenAI.
 7. Lisez le rapport, exportez le CSV ou cliquez sur **Expliquer le rapport dans ChatGPT**.
 8. Cliquez sur **Terminer et supprimer** pour retirer la clé chiffrée et les résultats. Sinon, tout expire 3 heures après la création.

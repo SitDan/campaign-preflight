@@ -177,26 +177,34 @@ async function loadDemo() {
   setBusy(false, "Kit d'exemple chargé : 3 annonces fictives de la collection « Aurore ».");
 }
 
-async function onCsv(event: Event) {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (file.size > LIMITS.csvMaxBytes) return fail("CSV de plus de 64 Kio : non pris en charge par ce POC.");
-  state.report = null;
-  state.csvName = file.name;
-  state.csvText = await file.text();
-  updatePreview();
-  state.error = "";
-  render();
-}
+const isCsv = (file: File) => /\.csv$/i.test(file.name) || file.type === "text/csv";
+const isImage = (file: File) => /\.(jpe?g|png)$/i.test(file.name) || file.type === "image/jpeg" || file.type === "image/png";
 
-async function onImages(event: Event) {
+/**
+ * Un seul sélecteur pour tout le kit : le CSV et ses images sont répartis
+ * automatiquement. Un type absent de la sélection conserve l'existant
+ * (on peut donc aussi compléter le kit en deux fois).
+ */
+async function onKitFiles(event: Event) {
   const input = event.target as HTMLInputElement;
   const files = Array.from(input.files ?? []);
+  input.value = "";
   if (files.length === 0) return;
+  const csvs = files.filter(isCsv);
+  const images = files.filter((file) => !isCsv(file) && isImage(file));
+  const ignored = files.filter((file) => !isCsv(file) && !isImage(file)).map((file) => file.name);
+  if (csvs.length > 1) return fail(`Un seul CSV par kit (${csvs.length} sélectionnés).`);
+  const csv = csvs[0];
+  if (csv && csv.size > LIMITS.csvMaxBytes) return fail("CSV de plus de 64 Kio : non pris en charge par ce POC.");
   state.report = null;
-  await setImages(files);
+  if (csv) {
+    state.csvName = csv.name;
+    state.csvText = await csv.text();
+  }
+  if (images.length) await setImages(images);
+  else updatePreview();
   state.error = "";
+  state.notice = ignored.length ? `Fichiers ignorés (formats acceptés : CSV, JPEG, PNG) : ${ignored.join(", ")}.` : "";
   render();
 }
 
@@ -392,12 +400,19 @@ function kitStep(): HTMLElement {
     return step(2, "Votre kit", "done", h("span", {}, `${state.csvName} · ${state.images.size} image(s) · `, button("Nouvelle validation", newValidation, "link")), null);
   }
   return step(2, "Votre kit", ready ? "current" : "todo", ready ? null : "Disponible après la configuration de la clé.", [
-    h("p", { className: "muted small" }, "Un fichier CSV au format du modèle (une ligne par annonce, 3 maximum) et les images JPEG/PNG qu'il référence."),
+    h("p", { className: "muted small" }, `Sélectionnez en une fois le CSV (au format du modèle, ${LIMITS.maxRowsPerKit} annonces maximum) et les images JPEG/PNG qu'il référence : par exemple tout le contenu du dossier du kit.`),
+    state.csvName || state.images.size
+      ? h(
+          "div",
+          { className: "files-status small" },
+          h("span", { className: `chip ${state.csvName ? "ok" : "missing"}` }, state.csvName ? `CSV : ${state.csvName}` : "CSV manquant"),
+          h("span", { className: `chip ${state.images.size ? "ok" : "missing"}` }, `${state.images.size} image(s)`),
+        )
+      : null,
     h(
       "div",
       { className: "actions" },
-      picker(state.csvName ? `CSV : ${state.csvName}` : "Choisir le CSV", ".csv,text/csv", false, onCsv),
-      picker(state.images.size ? `${state.images.size} image(s) choisie(s)` : "Choisir les images", ".jpg,.jpeg,.png,image/jpeg,image/png", true, onImages),
+      picker(state.csvName || state.images.size ? "Changer les fichiers" : "Choisir les fichiers du kit", ".csv,.jpg,.jpeg,.png,text/csv,image/jpeg,image/png", true, onKitFiles),
     ),
     h("div", { className: "actions" }, button("Utiliser le kit d'exemple", loadDemo, "link"), button("Modèle CSV", downloadTemplate, "link")),
     preview && !preview.ok
